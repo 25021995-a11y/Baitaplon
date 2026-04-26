@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.baitaplon.baitaplon.Register">
+   <children>
+      <Label layoutX="245.0" layoutY="26.0" prefHeight="18.0" prefWidth="110.0" text="REGISTRATION">
+         <font>
+            <Font size="15.0" />
+         </font>
+      </Label>
+      <Label layoutX="176.0" layoutY="85.0" text="Name" />
+      <Label layoutX="166.0" layoutY="130.0" text="Password" />
+      <TextField fx:id="regUsernameField" layoutX="238.0" layoutY="81.0" />
+      <PasswordField fx:id="regPasswordField" layoutX="238.0" layoutY="126.0" />
+      <PasswordField fx:id="regConfirmPasswordField" layoutX="238.0" layoutY="175.0" />
+      <Label layoutX="157.0" layoutY="179.0" text="Confirm pass" />
+      <Button layoutX="185.0" layoutY="252.0" mnemonicParsing="false" onAction="#onRegisterSubmit" text="Create account" />
+      <Button layoutX="335.0" layoutY="252.0" mnemonicParsing="false" onAction="#onBackToLogin" text="Return login" />
+      <Label fx:id="regStatusLabel" layoutX="203.0" layoutY="289.0" prefHeight="18.0" prefWidth="217.0" />
+      <ComboBox fx:id="roleComboBox" layoutX="237.0" layoutY="214.0" prefWidth="150.0" />
+      <Label layoutX="171.0" layoutY="218.0" prefHeight="18.0" prefWidth="41.0" text="Role" />
+   </children>
+</AnchorPane>
