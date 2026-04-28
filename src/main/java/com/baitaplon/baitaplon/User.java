@@ -29,7 +29,7 @@ public abstract class User {
     public abstract void showRole();
 
 }
-//chưa viết các chưức năng cho admin:kick,xóa tài khoản,...
+
 class Admin extends User{
     Admin(int userId, String username, String password, boolean isActive){
         super(userId,username,password,isActive);
@@ -38,7 +38,7 @@ class Admin extends User{
     public void showRole() {
         System.out.println("Vai trò:Admin");
     }
-
+//abc
     public void deactivateUser(User user){
         user.setActive(false);
         System.out.println("Admin đã khóa user: " + user.getUsername());
