@@ -38,6 +38,15 @@ class Admin extends User{
     public void showRole() {
         System.out.println("Vai trò:Admin");
     }
+
+    public void deactivateUser(User user){
+        user.setActive(false);
+        System.out.println("Admin đã khóa user: " + user.getUsername());
+    }
+    public void activateUser(User user){
+        user.setActive(true);
+        System.out.println("Admin đã mở user: " + user.getUsername());
+    }//thêm chức năng cho admin
 }
 //Bổ sung seller, nhận được tiền đấu giá từ bidder
 class Seller extends User{
@@ -90,7 +99,7 @@ class Bidder extends User{
             return false;
         }
         else if(price<=p.getPrice()){
-            System.out.println("Không đủ tiền");
+            System.out.println("Giá tiền phải lớn hơn giá hiện tại!");
             return false;
         }
         return true;
