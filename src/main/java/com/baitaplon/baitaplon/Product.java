@@ -79,6 +79,17 @@ public class Product {
         }
     }
     public String processBid(Bidder newBidder, double amount, boolean isAutoBid, double userStepPrice) {
+        if (isFinished()) {//bổ sung check tkhoan và hết thời gian
+            return "Phiên đấu giá đã kết thúc!";
+        }
+
+        if (newBidder == null) {
+            return "Người dùng không hợp lệ";
+        }
+
+        if (!newBidder.getIsActive()) {
+            return "Tài khoản bị khóa!";
+        }
 
         if (amount <= this.curPrice) {
             return "Lỗi: Giá đặt phải lớn hơn giá hiện tại (" + this.curPrice + ")";
