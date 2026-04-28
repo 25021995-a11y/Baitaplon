@@ -20,6 +20,8 @@ public class DatabaseConnection {
             e.printStackTrace();
         }
         return connection;
+
+        //testthu123
     }
     public static void main(String[] args) {
         Connection conn = DatabaseConnection.getConnection();
