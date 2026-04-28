@@ -38,7 +38,7 @@ class Admin extends User{
     public void showRole() {
         System.out.println("Vai trò:Admin");
     }
-//abc
+
     public void deactivateUser(User user){
         user.setActive(false);
         System.out.println("Admin đã khóa user: " + user.getUsername());
@@ -85,6 +85,11 @@ class Bidder extends User{
         this.inv=new ArrayList<Product>();
     }
     public void deposit(double amount){
+        if (amount <= 0) {
+            System.out.println("Số tiền không hợp lệ");
+            return;
+        }//sửa lỗi
+
         this.money+=amount;
         this.virMoney+=amount;
         System.out.println("Nạp thành công:"+amount);
