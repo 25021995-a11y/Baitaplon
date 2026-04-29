@@ -23,7 +23,7 @@ public class Payment {
             RemainMoney.setTextFill(Color.GREEN);
         }
     }
-    //Đã chỉnh laại phần Nạp tiền
+    //Đã chỉnh lại phần Nạp tiền
     public void handleDeposit(double amount){
         User loggedInUser = UserStorage.currentUser;
         if(loggedInUser==null){

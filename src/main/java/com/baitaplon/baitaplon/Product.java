@@ -105,8 +105,13 @@ public class Product {
                 this.curPrice = amount;
                 this.highestMaxBid = 0;
                 this.currentStepPrice = 0;
+
+                if (getTimeRemaining() < 10) {
+                    addExtraTime(30);
+                }
                 return "Đặt giá thành công! Bạn đang dẫn đầu.";
             }
+
         }
 
 
