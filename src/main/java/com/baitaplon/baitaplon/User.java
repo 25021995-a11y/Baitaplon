@@ -1,7 +1,5 @@
 package com.baitaplon.baitaplon;
 
-import javafx.fxml.FXML;
-
 import java.util.ArrayList;
 
 public abstract class User {
@@ -24,120 +22,115 @@ public abstract class User {
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
-    public  boolean getIsActive(){return this.isActive;}
-    public void setActive(boolean active){this.isActive=active;}
-    public abstract void showRole();
 
+    public boolean getIsActive() { return this.isActive; }
+    public void setActive(boolean active) { this.isActive = active; }
+
+    public abstract void showRole();
 }
 
-class Admin extends User{
+class Admin extends User {
     Admin(int userId, String username, String password, boolean isActive){
-        super(userId,username,password,isActive);
+        super(userId, username, password, isActive);
     }
     @Override
     public void showRole() {
-        System.out.println("Vai trò:Admin");
+        System.out.println("Vai trò: Admin");
     }
 
     public void deactivateUser(User user){
         user.setActive(false);
-        System.out.println("Admin đã khóa user: " + user.getUsername());
+        System.out.println("Đã khóa tài khoản: " + user.getUsername());
     }
-    public void activateUser(User user){
-        user.setActive(true);
-        System.out.println("Admin đã mở user: " + user.getUsername());
-    }//thêm chức năng cho admin
 }
-//Bổ sung seller, nhận được tiền đấu giá từ bidder
-class Seller extends User{
-    private double money;
+
+class Seller extends User {
+    private double money = 0;
+
     Seller(int userId, String username, String password, boolean isActive){
-        super(userId,username,password,isActive);
-        this.money=0.0;
+        super(userId, username, password, isActive);
     }
-    public void setMoney(double money){ this.money=money; }
-    public double getMoney(){
-        return this.money;
-    }
-    public void receiveMoney(double amount){
-        this.money+=amount;
-        System.out.println("Seller:"+this.getUsername()+" vừa nhận được :"+amount+" Tổng tiền:"+this.money);
-    }
-    public void pushItem(String name,double price,int time){
-        System.out.println("Seller "+this.getUsername()+" đang bán: "+name+" giá "+price);
-        int newId=ProductStorage.generateNewProductId();
-        Product product=new Product(newId,name,price,time,this);
-        ProductStorage.addProduct(product);
+
+    public synchronized void setMoney(double money) {
+        this.money = money;
     }
 
     @Override
-    public void showRole() {
-        System.out.println("Vai trò:Seller");
+    public void showRole() { System.out.println("Vai trò: Seller"); }
+
+    // THÊM SYNCHRONIZED: Đảm bảo an toàn khi nhận tiền từ nhiều Bidder
+    public synchronized void receiveMoney(double amount) {
+        this.money += amount;
+    }
+
+    public synchronized double getMoney() { return this.money; }
+
+    public void pushItem(String name, double price, int durationInMinutes){
+        int newId = ProductStorage.generateNewProductId();
+        Product newProduct = new Product(newId, name, price, durationInMinutes, this);
+        ProductStorage.addProduct(newProduct);
+        System.out.println("Seller " + this.getUsername() + " đã đăng bán: " + name);
     }
 }
-//Thay đổi phần trừ tền khi tham gia đấu giá
-class Bidder extends User{
-    private double money;
-    private double virMoney;
-    private ArrayList<Product> inv;
-    public Bidder(int userId, String username, String password, boolean isActive){
-        super(userId,username,password,isActive);
-        this.inv=new ArrayList<Product>();
-    }
-    public void deposit(double amount){
-        if (amount <= 0) {
-            System.out.println("Số tiền không hợp lệ");
-            return;
-        }//sửa lỗi
 
-        this.money+=amount;
-        this.virMoney+=amount;
-        System.out.println("Nạp thành công:"+amount);
+class Bidder extends User {
+    private double money;
+    private double virMoney; // Tiền ảo bị phong tỏa
+    private ArrayList<Product> inv;
+
+    Bidder(int userId, String username, String password, boolean isActive){
+        super(userId, username, password, isActive);
+        this.money = 0;
+        this.virMoney = 0;
+        this.inv = new ArrayList<>();
     }
-    public double getMoney(){
-        return this.money;
+
+    @Override
+    public void showRole() { System.out.println("Vai trò: Bidder"); }
+
+    // THÊM SYNCHRONIZED: An toàn khi nạp tiền
+    public synchronized void deposit(double amount){
+        if(amount > 0){
+            this.money += amount;
+            this.virMoney += amount;
+            System.out.println("Nạp thành công: " + amount);
+        }
     }
-    public void setVirMoney(double virMoney){ this.virMoney=virMoney; }
-    public boolean bidding(Product p,double price){
-        if(price>this.getMoney()){
+
+    public synchronized double getMoney() { return this.money; }
+    public synchronized void setMoney(double money) { this.money = money; }
+
+    public synchronized double getVirMoney() { return this.virMoney; }
+    public synchronized void setVirMoney(double virMoney){ this.virMoney = virMoney; }
+
+    public synchronized void virMoneyPay(double amount){ this.virMoney -= amount; }
+
+    public boolean bidding(Product p, double price){
+        if(price > this.getMoney()){
             System.out.println("Số dư không khả dụng");
             return false;
-        }
-        else if(price<=p.getPrice()){
+        } else if(price <= p.getPrice()){
             System.out.println("Giá tiền phải lớn hơn giá hiện tại!");
             return false;
         }
         return true;
     }
-    public void setMoney(double money){
-        this.money=money;
-    }
-    public double getVirMoney(){
-        return this.virMoney;
-    }
-    public void virMoneyPay(double amount){
-        this.virMoney-=amount;
-    }
-    public void ThanhToan(Product p){
-        double priceToPay=p.getPrice();
-        this.money-=priceToPay;
-        Seller owner=p.getOwner();
-        if (owner !=null){
+
+    // THÊM SYNCHRONIZED: Giao dịch thanh toán an toàn luồng
+    public synchronized void ThanhToan(Product p){
+        double priceToPay = p.getPrice();
+        this.money -= priceToPay;
+        Seller owner = p.getOwner();
+        if (owner != null){
             owner.receiveMoney(priceToPay);
         }
-        System.out.println("Bidder: "+this.getUsername()+" thanh toán "+priceToPay+" cho Seller "+owner.getUsername());
-
+        System.out.println("Bidder: " + this.getUsername() + " thanh toán " + priceToPay + " cho Seller " + owner.getUsername());
     }
-    public void addProductToInventory(Product product) {
+
+    public synchronized void addProductToInventory(Product product) {
         this.inv.add(product);
-        System.out.println("Đã thêm: "+product.getName()+" vào túi đồ của "+this.getUsername());
-    }
-    public ArrayList<Product> getInv(){
-        return this.inv;
-    }
-    @Override
-    public void showRole() {
-        System.out.println("Vai trò:Bidder");
+        System.out.println("Đã thêm: " + product.getName() + " vào túi đồ của " + this.getUsername());
     }
 
+    public ArrayList<Product> getInv() { return inv; }
 }

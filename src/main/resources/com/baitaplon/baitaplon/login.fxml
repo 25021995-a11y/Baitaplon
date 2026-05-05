@@ -1,21 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
 
+<StackPane prefHeight="600.0" prefWidth="800.0" styleClass="root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.baitaplon.baitaplon.Login">
 
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.baitaplon.baitaplon.Login">
+   <stylesheets>
+      <URL value="@style.css" />
+   </stylesheets>
+
    <children>
-      <Label layoutX="234.0" layoutY="14.0" prefHeight="18.0" prefWidth="132.0" text="REGISTRATION/LOGIN" />
-      <TextField fx:id="usernameField" layoutX="217.0" layoutY="70.0" />
-      <Label layoutX="141.0" layoutY="74.0" prefHeight="26.0" prefWidth="62.0" text="Name" />
-      <Label layoutX="141.0" layoutY="116.0" prefHeight="26.0" prefWidth="56.0" text="Password" />
-      <PasswordField fx:id="passwordField" layoutX="218.0" layoutY="117.0" />
-      <Button layoutX="264.0" layoutY="152.0" mnemonicParsing="false" onAction="#onLoginButtonClick" prefHeight="26.0" prefWidth="56.0" text="Login" />
-      <Button layoutX="244.0" layoutY="221.0" mnemonicParsing="false" onAction="#onCreateButtonClick" text="Create account" />
-      <Label fx:id="statusLabel" layoutX="215.0" layoutY="191.0" prefHeight="18.0" prefWidth="158.0" />
+      <AnchorPane maxHeight="450.0" maxWidth="600.0" prefHeight="450.0" prefWidth="600.0">
+         <children>
+            <Label layoutX="168.0" layoutY="54.0" styleClass="header-label" text="BIDCYCLE SYSTEM" textFill="#9d4edd">
+               <font>
+                  <Font name="Segoe UI Bold" size="32.0" />
+               </font>
+            </Label>
+
+            <Label layoutX="130.0" layoutY="145.0" text="Username">
+               <font>
+                  <Font name="Segoe UI Semibold" size="14.0" />
+               </font>
+            </Label>
+            <TextField fx:id="usernameField" layoutX="220.0" layoutY="138.0" prefHeight="35.0" prefWidth="250.0" promptText="Enter your username..." />
+
+            <Label layoutX="130.0" layoutY="205.0" text="Password">
+               <font>
+                  <Font name="Segoe UI Semibold" size="14.0" />
+               </font>
+            </Label>
+            <PasswordField fx:id="passwordField" layoutX="220.0" layoutY="198.0" prefHeight="35.0" prefWidth="250.0" promptText="Enter your password..." />
+
+            <Label fx:id="statusLabel" alignment="CENTER" layoutX="150.0" layoutY="248.0" prefHeight="20.0" prefWidth="300.0" textAlignment="CENTER" />
+
+            <Button layoutX="220.0" layoutY="285.0" mnemonicParsing="false" onAction="#onLoginButtonClick" prefHeight="40.0" prefWidth="250.0" text="LOGIN" />
+
+            <Button layoutX="245.0" layoutY="345.0" mnemonicParsing="false" onAction="#onCreateButtonClick" styleClass="link-button" text="Create new account" />
+         </children>
+      </AnchorPane>
    </children>
-</AnchorPane>
+</StackPane>

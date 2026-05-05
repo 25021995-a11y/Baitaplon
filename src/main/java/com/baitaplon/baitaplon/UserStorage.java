@@ -1,29 +1,29 @@
 package com.baitaplon.baitaplon;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.HashMap;
+
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
+
 public class UserStorage {
-    private static Map<String, User> userMap = new HashMap<>();
+    // SỬ DỤNG ConcurrentHashMap để Thread-safe
+    private static Map<String, User> userMap = new ConcurrentHashMap<>();
     private static int currentMaxId = 0;
-    public static int generateNewId() {
+
+    // Giữ nguyên biến này để không làm hỏng code Controller cũ của bạn
+    public static User currentUser = null;
+
+    // ĐỒNG BỘ HÓA hàm tạo ID
+    public static synchronized int generateNewId() {
         currentMaxId++;
         return currentMaxId;
     }
 
-    public static User currentUser = null;
-
     public static void addUser(User user) {
         userMap.put(user.getUsername(), user);
     }
-    public static boolean isUsernameExists(String username) {
 
-        for (User user : userMap.values()) {
-            if (user.getUsername().equals(username)) {
-                return true;
-            }
-        }
-        return false;
+    public static boolean isUsernameExists(String username) {
+        // ConcurrentHashMap cho phép kiểm tra trực tiếp an toàn
+        return userMap.containsKey(username);
     }
 
     public static User getUser(String username) {
@@ -39,7 +39,8 @@ public class UserStorage {
         }
         return null;
     }
-    public static void TruTien(Bidder bidder,Product product){
+
+    public static void TruTien(Bidder bidder, Product product){
         bidder.ThanhToan(product);
     }
 }
