@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<StackPane prefHeight="600.0" prefWidth="800.0" styleClass="root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.baitaplon.baitaplon.Payment">
+
+   <stylesheets>
+      <URL value="@style.css" />
+   </stylesheets>
+
+   <children>
+      <AnchorPane maxHeight="500.0" maxWidth="600.0" prefHeight="500.0" prefWidth="600.0">
+         <children>
+
+            <Label alignment="CENTER" layoutX="100.0" layoutY="30.0" prefWidth="400.0" styleClass="header-label" text="THANH TOÁN NẠP TIỀN" textFill="#9d4edd">
+               <font>
+                  <Font name="Segoe UI Bold" size="28.0" />
+               </font>
+            </Label>
+
+            <Label alignment="CENTER" layoutX="100.0" layoutY="85.0" prefWidth="400.0" text="Vui lòng chọn mệnh giá bạn muốn nạp" textFill="#cbb2ff">
+               <font>
+                  <Font name="Segoe UI Italic" size="14.0" />
+               </font>
+            </Label>
+
+            <Button fx:id="Fifty" layoutX="115.0" layoutY="150.0" mnemonicParsing="false" onAction="#FiftyButtonClick" prefHeight="45.0" prefWidth="110.0" text="50" />
+            <Button fx:id="Hundred" layoutX="245.0" layoutY="150.0" mnemonicParsing="false" onAction="#HundredButtonClick" prefHeight="45.0" prefWidth="110.0" text="100" />
+            <Button fx:id="twoHundred" layoutX="375.0" layoutY="150.0" mnemonicParsing="false" onAction="#twoHundredButtonClick" prefHeight="45.0" prefWidth="110.0" text="200" />
+
+            <Button fx:id="fiveHundred" layoutX="180.0" layoutY="215.0" mnemonicParsing="false" onAction="#fiveHundredButtonCLick" prefHeight="45.0" prefWidth="110.0" text="500" />
+            <Button fx:id="Thousand" layoutX="310.0" layoutY="215.0" mnemonicParsing="false" onAction="#ThousandButtonClick" prefHeight="45.0" prefWidth="110.0" text="1000" />
+
+            <Label alignment="CENTER" layoutX="200.0" layoutY="300.0" prefWidth="200.0" text="SỐ DƯ HIỆN TẠI">
+               <font>
+                  <Font name="Segoe UI Semibold" size="16.0" />
+               </font>
+            </Label>
+
+            <Label fx:id="RemainMoney" alignment="CENTER" layoutX="150.0" layoutY="330.0" prefHeight="50.0" prefWidth="300.0" style="-fx-background-color: #2a1642; -fx-background-radius: 8; -fx-border-color: #9d4edd; -fx-border-radius: 8; -fx-border-width: 2;" text="0" textFill="#00ffcc">
+               <font>
+                  <Font name="Segoe UI Bold" size="24.0" />
+               </font>
+            </Label>
+
+            <Button fx:id="BackToMain" layoutX="200.0" layoutY="420.0" mnemonicParsing="false" onAction="#BackToMainButtonClick" prefHeight="40.0" prefWidth="200.0" styleClass="link-button" text="Quay lại màn hình chính" />
+
+         </children>
+      </AnchorPane>
+   </children>
+</StackPane>

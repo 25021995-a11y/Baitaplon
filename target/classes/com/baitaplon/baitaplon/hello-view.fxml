@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<StackPane prefHeight="600.0" prefWidth="900.0" styleClass="root" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.baitaplon.baitaplon.HelloController">
+
+    <stylesheets>
+        <URL value="@style.css" />
+    </stylesheets>
+
+    <children>
+        <AnchorPane maxHeight="550.0" maxWidth="750.0" prefHeight="550.0" prefWidth="750.0">
+            <children>
+
+                <Label alignment="CENTER" layoutX="250.0" layoutY="20.0" prefWidth="250.0" styleClass="header-label" text="BIDDING SYSTEM" textFill="#9d4edd">
+                    <font>
+                        <Font name="Segoe UI Bold" size="26.0" />
+                    </font>
+                </Label>
+
+                <Button fx:id="inventory" layoutX="40.0" layoutY="20.0" mnemonicParsing="false" onAction="#inventoryButtonClick" prefHeight="35.0" prefWidth="100.0" styleClass="link-button" text="Inventory" />
+
+                <Label layoutX="560.0" layoutY="20.0" text="Username:" textFill="#cbb2ff">
+                    <font><Font name="Segoe UI Semibold" size="13.0" /></font>
+                </Label>
+                <Label fx:id="userName" layoutX="630.0" layoutY="20.0" prefHeight="18.0" prefWidth="100.0" textFill="#00ffcc">
+                    <font><Font name="Segoe UI Bold" size="13.0" /></font>
+                </Label>
+
+                <Label layoutX="560.0" layoutY="45.0" text="Wallet:" textFill="#cbb2ff">
+                    <font><Font name="Segoe UI Semibold" size="13.0" /></font>
+                </Label>
+                <Label fx:id="Wallet" layoutX="630.0" layoutY="45.0" prefHeight="18.0" prefWidth="100.0" textFill="#00ffcc">
+                    <font><Font name="Segoe UI Bold" size="13.0" /></font>
+                </Label>
+
+                <TableView fx:id="auctionTable" layoutX="40.0" layoutY="90.0" prefHeight="260.0" prefWidth="670.0">
+                    <columns>
+                        <TableColumn fx:id="productColumn" prefWidth="200.0" text="Sản phẩm" />
+                        <TableColumn fx:id="priceColumn" prefWidth="150.0" text="Giá bán" />
+                        <TableColumn fx:id="timeColumn" prefWidth="160.0" text="Thời gian" />
+                        <TableColumn fx:id="topBidColumn" prefWidth="158.0" text="Top Bid" />
+                    </columns>
+                </TableView>
+
+                <TextField fx:id="bidInput" layoutX="40.0" layoutY="370.0" prefHeight="40.0" prefWidth="220.0" promptText="Price / Max Price (Auto)" />
+                <TextField fx:id="txtStepPrice" layoutX="280.0" layoutY="370.0" prefHeight="40.0" prefWidth="120.0" promptText="Step Price" />
+
+                <CheckBox fx:id="chkAutoBid" layoutX="420.0" layoutY="380.0" mnemonicParsing="false" text="Auto Bidding" textFill="WHITE">
+                    <font><Font name="Segoe UI" size="13.0" /></font>
+                </CheckBox>
+
+                <Button fx:id="bidButton" layoutX="40.0" layoutY="430.0" mnemonicParsing="false" onAction="#onBidButtonClick" prefHeight="45.0" prefWidth="160.0" text="Tham gia đấu giá" />
+                <Button fx:id="PayButton" layoutX="220.0" layoutY="430.0" mnemonicParsing="false" onAction="#onPayButtonCLick" prefHeight="45.0" prefWidth="120.0" text="Nạp tiền" />
+
+                <Button fx:id="refresh" layoutX="590.0" layoutY="370.0" mnemonicParsing="false" onAction="#onRefreshButtonClick" prefHeight="40.0" prefWidth="120.0" style="-fx-background-color: #4a2d6e;" text="Refresh" />
+
+                <Label fx:id="statusLabel" alignment="CENTER" layoutX="40.0" layoutY="500.0" prefHeight="20.0" prefWidth="670.0" textFill="#ffcc00">
+                    <font><Font name="Segoe UI Italic" size="14.0" /></font>
+                </Label>
+
+            </children>
+        </AnchorPane>
+    </children>
+</StackPane>

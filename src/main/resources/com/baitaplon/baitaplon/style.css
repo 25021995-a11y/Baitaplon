@@ -1,0 +1,115 @@
+.root {
+    -fx-background-color: #12081f;
+    -fx-font-family: "Segoe UI", Arial, sans-serif;
+}
+
+.label {
+    -fx-text-fill: #e0caff;
+}
+
+.header-label {
+    -fx-effect: dropshadow(gaussian, #7b2cbf, 15, 0.2, 0, 0);
+}
+
+.text-field, .password-field {
+    -fx-background-color: #2a1642;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-border-color: #4a2d6e;
+    -fx-border-radius: 8;
+    -fx-padding: 8;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: #9d4edd;
+    -fx-background-color: #351d54;
+}
+
+.button {
+    -fx-background-color: linear-gradient(to right, #7b2cbf, #9d4edd);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(to right, #9d4edd, #c77dff);
+}
+
+.link-button {
+    -fx-background-color: transparent;
+    -fx-text-fill: #a370e8;
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+
+.link-button:hover {
+    -fx-text-fill: white;
+}
+
+/* --- LÀM ĐẸP TABLE VIEW (BẢNG) --- */
+.table-view {
+    -fx-background-color: transparent;
+    -fx-border-color: #4a2d6e;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 2;
+}
+
+/* Thanh tiêu đề của cột */
+.table-view .column-header-background {
+    -fx-background-color: #2a1642;
+    -fx-background-radius: 8 8 0 0;
+}
+
+.table-view .column-header, .table-view .filler {
+    -fx-background-color: transparent;
+    -fx-size: 35px; /* Chiều cao thanh tiêu đề */
+}
+
+/* Chữ trong thanh tiêu đề cột */
+.table-view .column-header .label {
+    -fx-text-fill: #cbb2ff;
+    -fx-font-weight: bold;
+    -fx-alignment: center-left;
+}
+
+/* Từng dòng (Row) trong bảng */
+.table-row-cell {
+    -fx-background-color: #1a0b2e;
+    -fx-border-color: transparent transparent #2a1642 transparent;
+    -fx-text-fill: white;
+}
+
+/* Đổi màu dòng xen kẽ để dễ nhìn (Odd rows) */
+.table-row-cell:odd {
+    -fx-background-color: #23113a;
+}
+
+/* Khi click chọn một dòng */
+.table-row-cell:selected {
+    -fx-background-color: #5a189a;
+}
+
+/* Chữ bên trong từng ô (Cell) */
+.table-view .table-cell {
+    -fx-text-fill: white;
+    -fx-font-size: 13px;
+}
+
+/* --- LÀM ĐẸP CHECKBOX --- */
+.check-box {
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+
+.check-box .box {
+    -fx-background-color: #2a1642;
+    -fx-border-color: #6c3f9e;
+    -fx-border-radius: 4;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: #00ffcc; /* Dấu tick màu xanh cyan cho nổi */
+}
