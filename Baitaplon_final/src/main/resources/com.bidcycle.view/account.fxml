@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="720.0" prefWidth="1000.0" styleClass="root"
+    xmlns="http://javafx.com/javafx/21"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.bidcycle.controller.AccountController">
+
+    <stylesheets>
+        <URL value="@style.css" />
+    </stylesheets>
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox prefWidth="200.0" prefHeight="720.0" styleClass="sidebar" spacing="4">
+            <padding><Insets top="20" right="10" bottom="20" left="10" /></padding>
+            <VBox alignment="CENTER" spacing="2">
+                <padding><Insets bottom="16" /></padding>
+                <Label text="⬡ BIDCYCLE" styleClass="sidebar-logo-label" />
+                <Label text="My Account" styleClass="sidebar-logo-sub" />
+            </VBox>
+            <Region prefHeight="1" prefWidth="180" style="-fx-background-color: #2d1857;" />
+            <Region prefHeight="8" />
+            <Label text="ĐIỀU HƯỚNG" styleClass="sidebar-section-label" style="-fx-padding: 0 0 4 6;" />
+            <Button text="⬅  Quay lại" styleClass="nav-btn" onAction="#onBackHome" />
+            <Region VBox.vgrow="ALWAYS" />
+            <Region prefHeight="1" prefWidth="180" style="-fx-background-color: #2d1857;" />
+            <Region prefHeight="6" />
+            <Button text="🚪  Đăng xuất" styleClass="logout-btn" onAction="#onLogout" />
+        </VBox>
+    </left>
+
+    <!-- MAIN CONTENT -->
+    <center>
+        <VBox>
+            <!-- Top bar -->
+            <HBox prefHeight="60" alignment="CENTER_LEFT" spacing="12"
+                  style="-fx-background-color: #100820; -fx-border-color: transparent transparent #2d1857 transparent; -fx-border-width: 0 0 1 0; -fx-padding: 0 20 0 20;">
+                <VBox spacing="2">
+                    <Label text="Thông tin tài khoản" styleClass="header-label" />
+                    <Label text="Xem và chỉnh sửa hồ sơ cá nhân của bạn" styleClass="page-subtitle" />
+                </VBox>
+            </HBox>
+
+            <!-- Content -->
+            <VBox spacing="14" style="-fx-padding: 20 24 20 24; -fx-background-color: #0d0818;">
+
+                <!-- Profile card -->
+                <HBox spacing="20" alignment="TOP_LEFT">
+                    <!-- Avatar & name -->
+                    <VBox spacing="10" alignment="CENTER"
+                          style="-fx-background-color: #160c2a; -fx-border-color: #2d1857; -fx-border-radius: 14; -fx-background-radius: 14; -fx-padding: 20 16 20 16; -fx-min-width: 170;">
+                        <Label text="👤" style="-fx-font-size: 44px;" />
+                        <Label fx:id="lblUsername" text="—"
+                               style="-fx-text-fill: #c77dff; -fx-font-size: 16px; -fx-font-weight: bold;" />
+                        <Label fx:id="lblRole" text="—"
+                               style="-fx-text-fill: #9d4edd; -fx-font-size: 12px;
+                                      -fx-background-color: #2d1857; -fx-background-radius: 20;
+                                      -fx-padding: 3 12 3 12;" />
+                        <Label fx:id="lblStatus" text="—" style="-fx-font-size: 12px;" />
+                        <!-- Nút chỉnh sửa -->
+                        <Button text="✏  Chỉnh sửa" onAction="#onEditProfile" prefWidth="130" prefHeight="34"
+                                style="-fx-background-color: #2d1857; -fx-text-fill: #c77dff; -fx-font-size: 12px; -fx-background-radius: 8; -fx-cursor: hand;" />
+                    </VBox>
+
+                    <!-- Info fields -->
+                    <VBox spacing="12" VBox.vgrow="ALWAYS"
+                          style="-fx-background-color: #160c2a; -fx-border-color: #2d1857; -fx-border-radius: 14; -fx-background-radius: 14; -fx-padding: 20 20 20 20;">
+                        <Label text="THÔNG TIN CHI TIẾT"
+                               style="-fx-text-fill: #4a3060; -fx-font-size: 10px; -fx-font-weight: bold; -fx-padding: 0 0 6 0;" />
+
+                        <HBox spacing="40">
+                            <VBox spacing="4">
+                                <Label text="Email" style="-fx-text-fill: #5a3d7a; -fx-font-size: 11px;" />
+                                <Label fx:id="lblEmail" text="—"
+                                       style="-fx-text-fill: #c8b4e0; -fx-font-size: 14px;" />
+                            </VBox>
+                            <VBox spacing="4">
+                                <Label text="Giới tính" style="-fx-text-fill: #5a3d7a; -fx-font-size: 11px;" />
+                                <Label fx:id="lblGender" text="—"
+                                       style="-fx-text-fill: #c8b4e0; -fx-font-size: 14px;" />
+                            </VBox>
+                        </HBox>
+
+                        <HBox spacing="40">
+                            <VBox spacing="4">
+                                <Label text="Ngày tạo tài khoản" style="-fx-text-fill: #5a3d7a; -fx-font-size: 11px;" />
+                                <Label fx:id="lblCreatedDate" text="—"
+                                       style="-fx-text-fill: #c8b4e0; -fx-font-size: 14px;" />
+                            </VBox>
+                            <VBox spacing="4">
+                                <Label text="Số dư" style="-fx-text-fill: #5a3d7a; -fx-font-size: 11px;" />
+                                <Label fx:id="lblWallet" text="—"
+                                       style="-fx-text-fill: #00e676; -fx-font-size: 16px; -fx-font-weight: bold;" />
+                                <Label fx:id="lblVirWallet" text=""
+                                       style="-fx-text-fill: #ffcc00; -fx-font-size: 12px;" />
+                            </VBox>
+                        </HBox>
+                    </VBox>
+                </HBox>
+
+                <!-- Edit Profile Panel (ẩn/hiện khi click "Chỉnh sửa") -->
+                <VBox fx:id="editPanel" spacing="12" visible="false"
+                      style="-fx-background-color: #160c2a; -fx-border-color: #4a2d8a; -fx-border-radius: 14; -fx-background-radius: 14; -fx-padding: 18 20 18 20;">
+                    <Label text="✏  Chỉnh sửa thông tin cá nhân"
+                           style="-fx-text-fill: #c77dff; -fx-font-weight: bold; -fx-font-size: 14px;" />
+
+                    <HBox spacing="20">
+                        <!-- Email -->
+                        <VBox spacing="5" prefWidth="280">
+                            <Label text="Email mới" style="-fx-text-fill: #9980c0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <TextField fx:id="editEmailField" promptText="example@email.com" prefHeight="38" prefWidth="280" />
+                        </VBox>
+                        <!-- Gender -->
+                        <VBox spacing="5" prefWidth="150">
+                            <Label text="Giới tính" style="-fx-text-fill: #9980c0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                            <ComboBox fx:id="editGenderCombo" prefHeight="38" prefWidth="150" />
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="20">
+                        <!-- New password -->
+                        <VBox spacing="5" prefWidth="220">
+                            <Label text="Mật khẩu mới (bỏ trống nếu không đổi)" style="-fx-text-fill: #9980c0; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                            <PasswordField fx:id="editNewPassword" promptText="Mật khẩu mới..." prefHeight="38" prefWidth="220" />
+                        </VBox>
+                        <!-- Confirm password -->
+                        <VBox spacing="5" prefWidth="220">
+                            <Label text="Xác nhận mật khẩu mới" style="-fx-text-fill: #9980c0; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                            <PasswordField fx:id="editConfirmPassword" promptText="Nhập lại mật khẩu mới..." prefHeight="38" prefWidth="220" />
+                        </VBox>
+                    </HBox>
+
+                    <Label fx:id="editStatusLabel" style="-fx-font-size: 12px; -fx-font-style: italic;" />
+
+                    <HBox spacing="12">
+                        <Button text="💾  Lưu thay đổi" onAction="#onSaveProfile" prefHeight="38" prefWidth="160" />
+                        <Button text="✕  Hủy" onAction="#onCancelEdit" prefHeight="38" prefWidth="100"
+                                styleClass="btn-secondary" />
+                    </HBox>
+                </VBox>
+
+                <!-- Bid History Chart -->
+                <VBox spacing="10"
+                      style="-fx-background-color: #160c2a; -fx-border-color: #2d1857; -fx-border-radius: 14; -fx-background-radius: 14; -fx-padding: 16 18 16 18;">
+                    <Label text="📊  Lịch sử đấu giá — Biểu đồ giá theo thời gian"
+                           style="-fx-text-fill: #c77dff; -fx-font-weight: bold; -fx-font-size: 13px;" />
+
+                    <Label fx:id="lblNoBidHistory" text="Chưa có lịch sử đấu giá."
+                           style="-fx-text-fill: #4a3060; -fx-font-style: italic; -fx-font-size: 13px;"
+                           visible="false" />
+
+                    <VBox fx:id="chartContainer" spacing="6">
+                        <Canvas fx:id="bidChartCanvas" width="700" height="200" />
+                        <Label text="← Số lần đặt giá  |  Trục Y: Số tiền (\$ )  →"
+                               style="-fx-text-fill: #3a2550; -fx-font-size: 10px; -fx-font-style: italic;" />
+                    </VBox>
+                </VBox>
+
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

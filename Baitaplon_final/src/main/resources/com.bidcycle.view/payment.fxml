@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane prefHeight="660.0" prefWidth="980.0" styleClass="root"
+    xmlns="http://javafx.com/javafx/21"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.bidcycle.controller.PaymentController">
+
+    <stylesheets><URL value="@style.css" /></stylesheets>
+
+    <BorderPane prefHeight="660" prefWidth="980">
+
+        <!-- SIDEBAR -->
+        <left>
+            <VBox prefWidth="200" prefHeight="660" styleClass="sidebar" spacing="4">
+                <padding><Insets top="20" right="10" bottom="20" left="10" /></padding>
+                <VBox alignment="CENTER" spacing="2">
+                    <padding><Insets bottom="16" /></padding>
+                    <Label text="⬡ BIDCYCLE" styleClass="sidebar-logo-label" />
+                    <Label text="Nạp tiền" styleClass="sidebar-logo-sub" />
+                </VBox>
+                <Region prefHeight="1" prefWidth="180" style="-fx-background-color: #2d1857;" />
+                <Region prefHeight="8" />
+                <Button text="🏠  Trang chủ" styleClass="nav-btn" onAction="#onBackToMain" />
+                <Button text="💰  Nạp tiền"  styleClass="nav-btn-active" />
+                <Region VBox.vgrow="ALWAYS" />
+                <Region prefHeight="1" prefWidth="180" style="-fx-background-color: #2d1857;" />
+            </VBox>
+        </left>
+
+        <!-- CONTENT -->
+        <center>
+            <VBox>
+                <!-- Top bar -->
+                <HBox prefHeight="60" alignment="CENTER_LEFT"
+                      style="-fx-background-color: #100820; -fx-border-color: transparent transparent #2d1857 transparent; -fx-border-width: 0 0 1 0; -fx-padding: 0 20 0 20;">
+                    <VBox spacing="2">
+                        <Label text="Nạp tiền vào tài khoản" styleClass="header-label" />
+                        <Label text="Chọn gợi ý hoặc nhập số tiền muốn nạp (tối thiểu \$5)" styleClass="page-subtitle" />
+                    </VBox>
+                </HBox>
+
+                <!-- Main content -->
+                <VBox spacing="24" alignment="CENTER"
+                      style="-fx-padding: 32 80 32 80; -fx-background-color: #0d0818;">
+
+                    <!-- Wallet card -->
+                    <VBox alignment="CENTER" spacing="8"
+                          style="-fx-background-color: #160c2a; -fx-border-color: #3d2080; -fx-border-radius: 16; -fx-background-radius: 16; -fx-padding: 24 50 24 50;">
+                        <Label text="SỐ DƯ HIỆN TẠI"
+                               style="-fx-text-fill: #6a4a8a; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                        <Label fx:id="remainMoneyLabel" text="\$0.00"
+                               style="-fx-font-size: 40px; -fx-font-weight: bold; -fx-text-fill: #00e5b0;" />
+                        <Label fx:id="virMoneyLabel" text=""
+                               style="-fx-text-fill: #ffcc00; -fx-font-size: 13px;" />
+                    </VBox>
+
+                    <!-- Gợi ý mức nạp -->
+                    <VBox spacing="10" alignment="CENTER">
+                        <Label text="— Gợi ý mức nạp (click để chọn) —"
+                               style="-fx-text-fill: #6a4a8a; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                        <HBox spacing="12" alignment="CENTER">
+                            <Button fx:id="btn5"    text="\$5"    onAction="#onQuickSelect5"
+                                    prefHeight="46" prefWidth="100"
+                                    style="-fx-font-size: 15px; -fx-font-weight: bold;" />
+                            <Button fx:id="btn10"   text="\$10"   onAction="#onQuickSelect10"
+                                    prefHeight="46" prefWidth="100"
+                                    style="-fx-font-size: 15px; -fx-font-weight: bold;" />
+                            <Button fx:id="btn100"  text="\$100"  onAction="#onQuickSelect100"
+                                    prefHeight="46" prefWidth="100"
+                                    style="-fx-font-size: 15px; -fx-font-weight: bold;" />
+                            <Button fx:id="btn200"  text="\$200"  onAction="#onQuickSelect200"
+                                    prefHeight="46" prefWidth="100"
+                                    style="-fx-font-size: 15px; -fx-font-weight: bold;" />
+                            <Button fx:id="btn1000" text="\$1000" onAction="#onQuickSelect1000"
+                                    prefHeight="46" prefWidth="100"
+                                    style="-fx-font-size: 15px; -fx-font-weight: bold;" />
+                        </HBox>
+                    </VBox>
+
+                    <!-- Nhập tay -->
+                    <VBox spacing="8" alignment="CENTER">
+                        <Label text="Hoặc nhập số tiền muốn nạp:"
+                               style="-fx-text-fill: #9980c0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                        <HBox spacing="12" alignment="CENTER">
+                            <Label text="\$" style="-fx-text-fill: #c77dff; -fx-font-size: 20px; -fx-font-weight: bold;" />
+                            <TextField fx:id="customAmountField"
+                                       promptText="Nhập số tiền (tối thiểu 5)..."
+                                       prefHeight="44" prefWidth="260"
+                                       style="-fx-font-size: 16px;" />
+                        </HBox>
+                        <Label fx:id="inputErrorLabel" text=""
+                               style="-fx-text-fill: #ff6b6b; -fx-font-size: 12px; -fx-font-style: italic;" />
+                    </VBox>
+
+                    <!-- Nút nạp tiền chính -->
+                    <Button fx:id="depositBtn" text="💰  Nạp tiền"
+                            onAction="#onDepositClick"
+                            prefHeight="52" prefWidth="300"
+                            style="-fx-font-size: 17px; -fx-font-weight: bold;" />
+
+                    <!-- Kết quả -->
+                    <Label fx:id="resultLabel" text=""
+                           style="-fx-font-size: 13px; -fx-font-weight: bold;" />
+
+                    <Button text="← Quay lại trang chủ" styleClass="btn-secondary"
+                            onAction="#onBackToMain" prefHeight="38" prefWidth="200" />
+                </VBox>
+            </VBox>
+        </center>
+    </BorderPane>
+</StackPane>

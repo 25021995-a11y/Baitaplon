@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane prefHeight="600.0" prefWidth="900.0" styleClass="root"
+    xmlns="http://javafx.com/javafx/21"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.bidcycle.controller.LoginController">
+
+    <stylesheets>
+        <URL value="@style.css" />
+    </stylesheets>
+
+    <HBox>
+        <!-- Left panel - Branding -->
+        <VBox prefWidth="420" prefHeight="600" alignment="CENTER" spacing="16"
+              style="-fx-background-color: linear-gradient(to bottom right, #1a0d32, #0d0818);">
+            <padding><Insets left="60" right="60" /></padding>
+
+            <Label text="⬡" style="-fx-text-fill: #9d4edd; -fx-font-size: 48px;" />
+            <Label text="BIDCYCLE" style="-fx-text-fill: #c77dff; -fx-font-size: 30px; -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, #7b2cbf, 20, 0.3, 0, 0);" />
+            <Label text="Nền tảng đấu giá trực tuyến" style="-fx-text-fill: #5a3d7a; -fx-font-size: 13px; -fx-font-style: italic;" />
+
+            <Region prefHeight="20" />
+
+            <VBox spacing="12" alignment="CENTER_LEFT" prefWidth="280">
+                <Label text="✓  Đấu giá thời gian thực" style="-fx-text-fill: #6a4a8a; -fx-font-size: 13px;" />
+                <Label text="✓  Auto-Bidding thông minh" style="-fx-text-fill: #6a4a8a; -fx-font-size: 13px;" />
+                <Label text="✓  An toàn &amp; bảo mật" style="-fx-text-fill: #6a4a8a; -fx-font-size: 13px;" />
+            </VBox>
+        </VBox>
+
+        <!-- Right panel - Login Form -->
+        <VBox prefWidth="480" prefHeight="600" alignment="CENTER" spacing="20"
+              style="-fx-background-color: #0d0818; -fx-border-color: transparent transparent transparent #1e1035; -fx-border-width: 0 0 0 1;">
+            <padding><Insets left="60" right="60" /></padding>
+
+            <VBox spacing="4" alignment="CENTER_LEFT">
+                <Label text="Chào mừng trở lại 👋" style="-fx-text-fill: #c77dff; -fx-font-size: 22px; -fx-font-weight: bold;" />
+                <Label text="Đăng nhập để tiếp tục đấu giá" style="-fx-text-fill: #4a3060; -fx-font-size: 13px;" />
+            </VBox>
+
+            <Region prefHeight="8" />
+
+            <VBox spacing="6" prefWidth="340">
+                <Label text="Tên đăng nhập" style="-fx-text-fill: #9980c0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                <TextField fx:id="usernameField" promptText="Nhập tên đăng nhập..." prefHeight="42" prefWidth="340" />
+            </VBox>
+
+            <VBox spacing="6" prefWidth="340">
+                <Label text="Mật khẩu" style="-fx-text-fill: #9980c0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                <PasswordField fx:id="passwordField" promptText="Nhập mật khẩu..." prefHeight="42" prefWidth="340" />
+            </VBox>
+
+            <Label fx:id="statusLabel" alignment="CENTER" prefWidth="340"
+                   style="-fx-text-fill: #ff6b6b; -fx-font-size: 12px; -fx-font-style: italic;" />
+
+            <Button onAction="#onLoginButtonClick" prefHeight="44" prefWidth="340" text="ĐĂNG NHẬP" />
+
+            <HBox alignment="CENTER" spacing="6">
+                <Label text="Chưa có tài khoản?" style="-fx-text-fill: #4a3060; -fx-font-size: 13px;" />
+                <Button onAction="#onCreateButtonClick" styleClass="link-button" text="Tạo tài khoản mới" />
+            </HBox>
+        </VBox>
+    </HBox>
+</StackPane>

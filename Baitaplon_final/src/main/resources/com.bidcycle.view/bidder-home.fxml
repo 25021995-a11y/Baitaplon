@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="680.0" prefWidth="1100.0" styleClass="root"
+    xmlns="http://javafx.com/javafx/21"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.bidcycle.controller.BidderHomeController">
+
+    <stylesheets>
+        <URL value="@style.css" />
+    </stylesheets>
+
+    <!-- ===== SIDEBAR (LEFT) ===== -->
+    <left>
+        <VBox prefWidth="210.0" prefHeight="680.0" styleClass="sidebar" spacing="4">
+            <padding><Insets top="20" right="10" bottom="20" left="10" /></padding>
+
+            <VBox alignment="CENTER" spacing="2">
+                <padding><Insets bottom="16" /></padding>
+                <Label text="⬡ BIDCYCLE" styleClass="sidebar-logo-label" />
+                <Label text="Auction Platform" styleClass="sidebar-logo-sub" />
+            </VBox>
+
+            <Region prefHeight="1" prefWidth="190" style="-fx-background-color: #2d1857;" />
+            <Region prefHeight="8" />
+
+            <Label text="MAIN MENU" styleClass="sidebar-section-label" style="-fx-padding: 0 0 4 6;" />
+
+            <Button text="🏠  Trang chủ" styleClass="nav-btn-active" onAction="#onNavHome" />
+            <Button text="📊  My Dashboard" styleClass="nav-btn" onAction="#onNavDashboard" />
+            <Button text="📦  Kho đồ" styleClass="nav-btn" onAction="#onInventoryButtonClick" />
+
+            <Region prefHeight="8" />
+            <Label text="TÀI KHOẢN" styleClass="sidebar-section-label" style="-fx-padding: 0 0 4 6;" />
+
+            <Button text="👤  Tài khoản" styleClass="nav-btn" onAction="#onNavAccount" />
+            <Button text="💰  Nạp tiền" styleClass="nav-btn" onAction="#onPayButtonClick" />
+
+            <!-- Nút Sell riêng biệt -->
+            <Region prefHeight="8" />
+            <Region prefHeight="1" prefWidth="190" style="-fx-background-color: #2d1857;" />
+            <Region prefHeight="8" />
+            <Button text="🏷️  Đăng bán sản phẩm" styleClass="nav-btn"
+                    style="-fx-background-color: linear-gradient(to right, #1a4a1a, #2a7a2a); -fx-text-fill: #88ff88; -fx-font-weight: bold;"
+                    onAction="#onNavSell" />
+
+            <Region VBox.vgrow="ALWAYS" />
+            <Region prefHeight="1" prefWidth="190" style="-fx-background-color: #2d1857;" />
+            <Region prefHeight="6" />
+            <Button text="🚪  Đăng xuất" styleClass="logout-btn" onAction="#onLogout" />
+        </VBox>
+    </left>
+
+    <!-- ===== MAIN CONTENT (CENTER) ===== -->
+    <center>
+        <VBox>
+            <!-- Top bar -->
+            <HBox prefHeight="60" alignment="CENTER_LEFT" spacing="12"
+                  style="-fx-background-color: #100820; -fx-border-color: transparent transparent #2d1857 transparent; -fx-border-width: 0 0 1 0; -fx-padding: 0 20 0 20;">
+                <VBox spacing="2">
+                    <Label fx:id="headerTitle" text="Trang chủ - Sàn đấu giá" styleClass="header-label" />
+                    <Label fx:id="headerSubtitle" text="Tất cả phiên đấu giá đang diễn ra" styleClass="page-subtitle" />
+                </VBox>
+
+                <Region HBox.hgrow="ALWAYS" />
+
+                <HBox spacing="16" alignment="CENTER"
+                      style="-fx-background-color: #1a0d32; -fx-border-color: #2d1857; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 8 16 8 16;">
+                    <VBox alignment="CENTER_LEFT" spacing="2">
+                        <Label text="Username" style="-fx-text-fill: #4a3060; -fx-font-size: 10px;" />
+                        <Label fx:id="userName" text="—" styleClass="user-name-label" />
+                    </VBox>
+                    <Region style="-fx-background-color: #2d1857; -fx-pref-width: 1; -fx-pref-height: 28;" />
+                    <VBox alignment="CENTER_LEFT" spacing="2">
+                        <Label text="Số dư" style="-fx-text-fill: #4a6060; -fx-font-size: 10px;" />
+                        <Label fx:id="walletLabel" text="—" styleClass="wallet-label" />
+                    </VBox>
+                </HBox>
+            </HBox>
+
+            <!-- Content Area -->
+            <VBox spacing="12" style="-fx-padding: 16 20 16 20; -fx-background-color: #0d0818;">
+
+                <!-- Filter/Search row -->
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <TextField fx:id="searchField" promptText="🔍  Tìm kiếm sản phẩm..."
+                               styleClass="search-field" prefHeight="38" prefWidth="260" />
+
+                    <Label text="Danh mục:" style="-fx-text-fill: #6a4a8a; -fx-font-size: 12px;" />
+                    <ComboBox fx:id="categoryFilter" prefHeight="38" prefWidth="140"
+                              promptText="Tất cả" />
+
+                    <Label text="Sắp xếp:" style="-fx-text-fill: #6a4a8a; -fx-font-size: 12px;" />
+                    <ComboBox fx:id="sortComboBox" prefHeight="38" prefWidth="160"
+                              promptText="Mặc định" />
+
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button text="↻  Làm mới" styleClass="btn-secondary"
+                            onAction="#onRefreshButtonClick" prefHeight="38" />
+                </HBox>
+
+                <!-- Auction table -->
+                <TableView fx:id="auctionTable" prefHeight="300">
+                    <columns>
+                        <TableColumn fx:id="productColumn" prefWidth="190" text="Sản phẩm" />
+                        <TableColumn fx:id="categoryColumn" prefWidth="100" text="Danh mục" />
+                        <TableColumn fx:id="priceColumn" prefWidth="110" text="Giá khởi điểm" />
+                        <TableColumn fx:id="highestPriceColumn" prefWidth="120" text="Giá cao nhất" />
+                        <TableColumn fx:id="timeColumn" prefWidth="180" text="Thời gian còn lại" />
+                        <TableColumn fx:id="topBidColumn" prefWidth="140" text="Người dẫn đầu" />
+                    </columns>
+                </TableView>
+
+                <!-- Bid section -->
+                <HBox spacing="12" alignment="CENTER_LEFT"
+                      style="-fx-background-color: #160c2a; -fx-border-color: #2d1857; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 12 16 12 16;">
+                    <VBox spacing="4">
+                        <Label text="Số tiền đặt giá (\$)" style="-fx-text-fill: #6a4a8a; -fx-font-size: 11px;" />
+                        <TextField fx:id="bidInput" promptText="Nhập giá đấu (\$)..."
+                                   prefHeight="38" prefWidth="180" />
+                    </VBox>
+                    <VBox spacing="4">
+                        <Label text="Bước giá (Auto Bid)" style="-fx-text-fill: #6a4a8a; -fx-font-size: 11px;" />
+                        <TextField fx:id="txtStepPrice" promptText="Bước giá..."
+                                   prefHeight="38" prefWidth="120" />
+                    </VBox>
+                    <VBox spacing="4" alignment="BOTTOM_LEFT">
+                        <Label text=" " style="-fx-font-size: 11px;" />
+                        <CheckBox fx:id="chkAutoBid" text="Auto Bidding" />
+                    </VBox>
+
+                    <Region HBox.hgrow="ALWAYS" />
+
+                    <VBox spacing="4" alignment="BOTTOM_RIGHT">
+                        <Label text=" " style="-fx-font-size: 11px;" />
+                        <Button text="⚡  Tham gia đấu giá"
+                                onAction="#onBidButtonClick" prefHeight="38" prefWidth="180" />
+                    </VBox>
+                </HBox>
+
+                <!-- Status label -->
+                <Label fx:id="statusLabel" alignment="CENTER" prefWidth="800"
+                       style="-fx-text-fill: #ffcc00; -fx-font-style: italic; -fx-font-size: 13px;" />
+
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

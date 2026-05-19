@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="650.0" prefWidth="980.0" styleClass="root"
+    xmlns="http://javafx.com/javafx/21"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.bidcycle.controller.InventoryController">
+
+    <stylesheets>
+        <URL value="@style.css" />
+    </stylesheets>
+
+    <!-- SIDEBAR -->
+    <left>
+        <VBox prefWidth="200.0" prefHeight="650.0" styleClass="sidebar" spacing="4">
+            <padding><Insets top="20" right="10" bottom="20" left="10" /></padding>
+
+            <VBox alignment="CENTER" spacing="2">
+                <padding><Insets bottom="16" /></padding>
+                <Label text="⬡ BIDCYCLE" styleClass="sidebar-logo-label" />
+                <Label text="Auction Platform" styleClass="sidebar-logo-sub" />
+            </VBox>
+
+            <Region prefHeight="1" prefWidth="180" style="-fx-background-color: #2d1857;" />
+            <Region prefHeight="8" />
+
+            <Label text="MAIN MENU" styleClass="sidebar-section-label" style="-fx-padding: 0 0 4 6;" />
+
+            <Button text="🏠  Trang chủ" styleClass="nav-btn" onAction="#onBackToMain" />
+            <Button text="📦  Kho đồ" styleClass="nav-btn-active" />
+
+            <Region VBox.vgrow="ALWAYS" />
+            <Region prefHeight="1" prefWidth="180" style="-fx-background-color: #2d1857;" />
+            <Region prefHeight="6" />
+            <Button text="🚪  Đăng xuất" styleClass="logout-btn" />
+        </VBox>
+    </left>
+
+    <!-- CONTENT -->
+    <center>
+        <VBox>
+            <!-- Top bar -->
+            <HBox prefHeight="60" alignment="CENTER_LEFT" spacing="12"
+                  style="-fx-background-color: #100820; -fx-border-color: transparent transparent #2d1857 transparent; -fx-border-width: 0 0 1 0; -fx-padding: 0 20 0 20;">
+                <VBox spacing="2">
+                    <Label text="Kho đồ của tôi" styleClass="header-label" />
+                    <Label text="Các sản phẩm bạn đã đấu giá thành công" styleClass="page-subtitle" />
+                </VBox>
+            </HBox>
+
+            <!-- Content -->
+            <VBox spacing="16" style="-fx-padding: 24 24 24 24; -fx-background-color: #0d0818;">
+
+                <!-- Empty state hint -->
+                <Label text="📦  Danh sách vật phẩm đã thắng đấu giá"
+                       style="-fx-text-fill: #6a4a8a; -fx-font-size: 13px; -fx-font-style: italic;" />
+
+                <TableView fx:id="inventoryTable" prefHeight="380">
+                    <columns>
+                        <TableColumn fx:id="productColumn" prefWidth="340" text="Sản phẩm" />
+                        <TableColumn fx:id="priceColumn" prefWidth="240" text="Giá mua vào" />
+                    </columns>
+                </TableView>
+
+                <HBox>
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Button fx:id="backToMain" text="← Quay lại trang chủ"
+                            styleClass="btn-secondary" onAction="#onBackToMain"
+                            prefHeight="38" />
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

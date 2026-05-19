@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane prefHeight="620.0" prefWidth="900.0" styleClass="root"
+    xmlns="http://javafx.com/javafx/21"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.bidcycle.controller.RegisterController">
+
+    <stylesheets>
+        <URL value="@style.css" />
+    </stylesheets>
+
+    <HBox>
+        <!-- Left panel - Branding -->
+        <VBox prefWidth="360" prefHeight="620" alignment="CENTER" spacing="16"
+              style="-fx-background-color: linear-gradient(to bottom right, #1a0d32, #0d0818);">
+            <padding><Insets left="50" right="50" /></padding>
+
+            <Label text="⬡" style="-fx-text-fill: #9d4edd; -fx-font-size: 42px;" />
+            <Label text="BIDCYCLE" style="-fx-text-fill: #c77dff; -fx-font-size: 26px; -fx-font-weight: bold;" />
+            <Label text="Tham gia cộng đồng đấu giá" style="-fx-text-fill: #5a3d7a; -fx-font-size: 12px; -fx-font-style: italic;" />
+
+            <Region prefHeight="10" />
+            <VBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="🏆  Thi đấu với hàng nghìn người dùng" style="-fx-text-fill: #6a4a8a; -fx-font-size: 12px;" />
+                <Label text="🛒  Vừa mua vừa bán trên cùng tài khoản" style="-fx-text-fill: #6a4a8a; -fx-font-size: 12px;" />
+                <Label text="🤖  Auto-bidding thông minh" style="-fx-text-fill: #6a4a8a; -fx-font-size: 12px;" />
+                <Label text="🔒  Tài khoản bảo mật an toàn" style="-fx-text-fill: #6a4a8a; -fx-font-size: 12px;" />
+            </VBox>
+        </VBox>
+
+        <!-- Right panel - Register Form -->
+        <VBox prefWidth="540" prefHeight="620" alignment="CENTER" spacing="14"
+              style="-fx-background-color: #0d0818; -fx-border-color: transparent transparent transparent #1e1035; -fx-border-width: 0 0 0 1;">
+            <padding><Insets left="56" right="56" /></padding>
+
+            <VBox spacing="4" alignment="CENTER_LEFT">
+                <Label text="Tạo tài khoản mới" style="-fx-text-fill: #c77dff; -fx-font-size: 22px; -fx-font-weight: bold;" />
+                <Label text="Điền đầy đủ thông tin bên dưới" style="-fx-text-fill: #4a3060; -fx-font-size: 12px;" />
+            </VBox>
+
+            <!-- Username -->
+            <VBox spacing="5" prefWidth="380">
+                <Label text="Tên đăng nhập *" style="-fx-text-fill: #9980c0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                <TextField fx:id="regUsernameField" promptText="Nhập tên đăng nhập..." prefHeight="40" prefWidth="380" />
+            </VBox>
+
+            <!-- Email -->
+            <VBox spacing="5" prefWidth="380">
+                <Label text="Email" style="-fx-text-fill: #9980c0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                <TextField fx:id="regEmailField" promptText="example@email.com" prefHeight="40" prefWidth="380" />
+            </VBox>
+
+            <!-- Gender -->
+            <VBox spacing="5" prefWidth="380">
+                <Label text="Giới tính" style="-fx-text-fill: #9980c0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                <ComboBox fx:id="genderComboBox" promptText="Giới tính..." prefHeight="40" prefWidth="380" />
+            </VBox>
+
+            <!-- Password -->
+            <VBox spacing="5" prefWidth="380">
+                <Label text="Mật khẩu *" style="-fx-text-fill: #9980c0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                <PasswordField fx:id="regPasswordField" promptText="Tạo mật khẩu..." prefHeight="40" prefWidth="380" />
+                <Label text="⚠ Tối thiểu 8 ký tự, gồm chữ hoa, chữ thường, số và ký tự đặc biệt" style="-fx-text-fill: #6a4a8a; -fx-font-size: 10px; -fx-font-style: italic;" />
+            </VBox>
+
+            <!-- Confirm password -->
+            <VBox spacing="5" prefWidth="380">
+                <Label text="Xác nhận mật khẩu *" style="-fx-text-fill: #9980c0; -fx-font-size: 12px; -fx-font-weight: bold;" />
+                <PasswordField fx:id="regConfirmPasswordField" promptText="Nhập lại mật khẩu..." prefHeight="40" prefWidth="380" />
+            </VBox>
+
+            <Label fx:id="regStatusLabel" alignment="CENTER" prefWidth="380"
+                   style="-fx-text-fill: #ff6b6b; -fx-font-size: 12px; -fx-font-style: italic;" />
+
+            <Button onAction="#onRegisterSubmit" prefHeight="44" prefWidth="380" text="TẠO TÀI KHOẢN" />
+
+            <HBox alignment="CENTER" spacing="6">
+                <Label text="Đã có tài khoản?" style="-fx-text-fill: #4a3060; -fx-font-size: 13px;" />
+                <Button onAction="#onBackToLogin" styleClass="link-button" text="Đăng nhập ngay" />
+            </HBox>
+        </VBox>
+    </HBox>
+</StackPane>
