@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.StackPane?>
+
+<BorderPane prefHeight="680.0" prefWidth="1100.0" styleClass="root"
+    xmlns="http://javafx.com/javafx/21"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="com.bidcycle.controller.DashboardController">
+
+    <stylesheets>
+        <URL value="@style.css" />
+    </stylesheets>
+
+    <!-- ===== SIDEBAR (LEFT) ===== -->
+    <left>
+        <VBox prefWidth="210.0" prefHeight="680.0" styleClass="sidebar" spacing="4">
+            <padding><Insets top="20" right="10" bottom="20" left="10" /></padding>
+
+            <VBox alignment="CENTER" spacing="2">
+                <padding><Insets bottom="16" /></padding>
+                <Label text="⬡ BIDCYCLE" styleClass="sidebar-logo-label" />
+                <Label text="Auction Platform" styleClass="sidebar-logo-sub" />
+            </VBox>
+
+            <Region prefHeight="1" prefWidth="190" style="-fx-background-color: #2d1857;" />
+            <Region prefHeight="8" />
+
+            <Label text="MAIN MENU" styleClass="sidebar-section-label" style="-fx-padding: 0 0 4 6;" />
+
+            <Button text="🏠  Trang chủ" styleClass="nav-btn" onAction="#onNavHome" />
+            <Button text="📊  My Dashboard" styleClass="nav-btn-active" />
+            <Button text="📦  Kho đồ" styleClass="nav-btn" onAction="#onNavInventory" />
+
+            <Region prefHeight="8" />
+            <Label text="TÀI KHOẢN" styleClass="sidebar-section-label" style="-fx-padding: 0 0 4 6;" />
+
+            <Button text="👤  Tài khoản" styleClass="nav-btn" onAction="#onNavAccount" />
+            <Button text="💰  Nạp tiền" styleClass="nav-btn" onAction="#onNavPayment" />
+
+            <Region prefHeight="8" />
+            <Region prefHeight="1" prefWidth="190" style="-fx-background-color: #2d1857;" />
+            <Region prefHeight="8" />
+            <Button text="🏷️  Đăng bán sản phẩm" styleClass="nav-btn"
+                    style="-fx-background-color: linear-gradient(to right, #1a4a1a, #2a7a2a); -fx-text-fill: #88ff88; -fx-font-weight: bold;"
+                    onAction="#onNavSell" />
+
+            <Region VBox.vgrow="ALWAYS" />
+            <Region prefHeight="1" prefWidth="190" style="-fx-background-color: #2d1857;" />
+            <Region prefHeight="6" />
+            <Button text="🚪  Đăng xuất" styleClass="logout-btn" onAction="#onLogout" />
+        </VBox>
+    </left>
+
+    <!-- ===== MAIN CONTENT (CENTER) ===== -->
+    <center>
+        <VBox>
+            <!-- Top bar -->
+            <HBox prefHeight="60" alignment="CENTER_LEFT" spacing="12"
+                  style="-fx-background-color: #100820; -fx-border-color: transparent transparent #2d1857 transparent; -fx-border-width: 0 0 1 0; -fx-padding: 0 20 0 20;">
+                <VBox spacing="2">
+                    <Label text="📊  My Dashboard" styleClass="header-label" />
+                    <Label text="Tổng quan hoạt động đấu giá của bạn" styleClass="page-subtitle" />
+                </VBox>
+                <Region HBox.hgrow="ALWAYS" />
+                <HBox spacing="16" alignment="CENTER"
+                      style="-fx-background-color: #1a0d32; -fx-border-color: #2d1857; -fx-border-radius: 10; -fx-background-radius: 10; -fx-padding: 8 16 8 16;">
+                    <VBox alignment="CENTER_LEFT" spacing="2">
+                        <Label text="Username" style="-fx-text-fill: #4a3060; -fx-font-size: 10px;" />
+                        <Label fx:id="lblUsername" text="—" styleClass="user-name-label" />
+                    </VBox>
+                    <Region style="-fx-background-color: #2d1857; -fx-pref-width: 1; -fx-pref-height: 28;" />
+                    <VBox alignment="CENTER_LEFT" spacing="2">
+                        <Label text="Số dư" style="-fx-text-fill: #4a6060; -fx-font-size: 10px;" />
+                        <Label fx:id="lblWallet" text="—" styleClass="wallet-label" />
+                    </VBox>
+                </HBox>
+            </HBox>
+
+            <!-- Scrollable content area -->
+            <VBox spacing="16" style="-fx-padding: 20 24 20 24; -fx-background-color: #0d0818;" VBox.vgrow="ALWAYS">
+
+                <!-- ── Stat cards row ── -->
+                <HBox spacing="16">
+                    <!-- Card: Tổng giao dịch -->
+                    <VBox spacing="6" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: #160c2a; -fx-border-color: #2d1857; -fx-border-radius: 14; -fx-background-radius: 14; -fx-border-width: 1; -fx-padding: 18 20 18 20; -fx-effect: dropshadow(gaussian, rgba(106,13,173,0.27), 14, 0.1, 0, 3);">
+                        <Label text="📋  Tổng giao dịch" style="-fx-text-fill: #6a4a8a; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                        <Label fx:id="lblTotalBids" text="0" styleClass="stat-number" />
+                        <Label text="lần đặt giá" styleClass="stat-caption" />
+                    </VBox>
+                    <!-- Card: Phiên thắng -->
+                    <VBox spacing="6" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: #0d2416; -fx-border-color: #1a5e30; -fx-border-radius: 14; -fx-background-radius: 14; -fx-border-width: 1; -fx-padding: 18 20 18 20; -fx-effect: dropshadow(gaussian, rgba(0,229,176,0.27), 14, 0.1, 0, 3);">
+                        <Label text="🏆  Phiên thắng" style="-fx-text-fill: #2a8a50; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                        <Label fx:id="lblWonBids" text="0" style="-fx-text-fill: #00e5b0; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                        <Label text="đấu giá thành công" style="-fx-text-fill: #1a5e30; -fx-font-size: 11px;" />
+                    </VBox>
+                    <!-- Card: Tỉ lệ thành công -->
+                    <VBox spacing="6" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: #1a1020; -fx-border-color: #4a1d6e; -fx-border-radius: 14; -fx-background-radius: 14; -fx-border-width: 1; -fx-padding: 18 20 18 20; -fx-effect: dropshadow(gaussian, rgba(157,78,221,0.27), 14, 0.1, 0, 3);">
+                        <Label text="📈  Tỉ lệ thành công" style="-fx-text-fill: #6a3d9a; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                        <Label fx:id="lblSuccessRate" text="0%" style="-fx-text-fill: #c77dff; -fx-font-size: 26px; -fx-font-weight: bold;" />
+                        <Label text="win rate" style="-fx-text-fill: #4a2d6a; -fx-font-size: 11px;" />
+                    </VBox>
+                    <!-- Card: Số dư -->
+                    <VBox spacing="6" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: #0f1a2a; -fx-border-color: #1a3d5e; -fx-border-radius: 14; -fx-background-radius: 14; -fx-border-width: 1; -fx-padding: 18 20 18 20; -fx-effect: dropshadow(gaussian, rgba(0,144,255,0.27), 14, 0.1, 0, 3);">
+                        <Label text="💳  Số dư khả dụng" style="-fx-text-fill: #2a5a8a; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                        <Label fx:id="lblBalance" text="\$0.00" style="-fx-text-fill: #4dbeff; -fx-font-size: 22px; -fx-font-weight: bold;" />
+                        <Label text="virtual money" style="-fx-text-fill: #1a3d5e; -fx-font-size: 11px;" />
+                    </VBox>
+                </HBox>
+
+                <!-- ── Middle row: Win rate chart + Leaderboard ── -->
+                <HBox spacing="16" VBox.vgrow="ALWAYS">
+
+                    <!-- Win rate donut chart -->
+                    <VBox spacing="12" prefWidth="340"
+                          style="-fx-background-color: #160c2a; -fx-border-color: #2d1857; -fx-border-radius: 14; -fx-background-radius: 14; -fx-border-width: 1; -fx-padding: 18 20 18 20;">
+                        <Label text="📊  Tỉ lệ phiên đấu giá" style="-fx-text-fill: #9d4edd; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                        <Label text="Biểu đồ thành công / thất bại" style="-fx-text-fill: #4a3060; -fx-font-size: 11px;" />
+                        <StackPane alignment="CENTER">
+                            <Canvas fx:id="winRateCanvas" width="300" height="200" />
+                        </StackPane>
+                        <!-- Legend -->
+                        <HBox spacing="20" alignment="CENTER">
+                            <HBox spacing="6" alignment="CENTER">
+                                <Region prefWidth="12" prefHeight="12"
+                                        style="-fx-background-color: #00e5b0; -fx-background-radius: 3;" />
+                                <Label text="Thành công" style="-fx-text-fill: #00e5b0; -fx-font-size: 11px;" />
+                            </HBox>
+                            <HBox spacing="6" alignment="CENTER">
+                                <Region prefWidth="12" prefHeight="12"
+                                        style="-fx-background-color: #9d4edd; -fx-background-radius: 3;" />
+                                <Label text="Chưa thắng" style="-fx-text-fill: #9d4edd; -fx-font-size: 11px;" />
+                            </HBox>
+                            <HBox spacing="6" alignment="CENTER">
+                                <Region prefWidth="12" prefHeight="12"
+                                        style="-fx-background-color: #2d1857; -fx-background-radius: 3;" />
+                                <Label text="Chưa có GD" style="-fx-text-fill: #4a3060; -fx-font-size: 11px;" />
+                            </HBox>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Leaderboard -->
+                    <VBox spacing="12" HBox.hgrow="ALWAYS"
+                          style="-fx-background-color: #160c2a; -fx-border-color: #2d1857; -fx-border-radius: 14; -fx-background-radius: 14; -fx-border-width: 1; -fx-padding: 18 20 18 20;">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="🏅  Top Bidders" style="-fx-text-fill: #c77dff; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                            <Region HBox.hgrow="ALWAYS" />
+                            <Label text="Tài khoản đấu giá nhiều nhất" style="-fx-text-fill: #4a3060; -fx-font-size: 11px;" />
+                        </HBox>
+                        <!-- Header row -->
+                        <HBox spacing="0"
+                              style="-fx-background-color: #0d0818; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 8 12 8 12;">
+                            <Label text="#" prefWidth="36" style="-fx-text-fill: #6a2daa; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                            <Label text="Người dùng" HBox.hgrow="ALWAYS" style="-fx-text-fill: #6a2daa; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                            <Label text="Số bid" prefWidth="70" style="-fx-text-fill: #6a2daa; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                            <Label text="Thắng" prefWidth="60" style="-fx-text-fill: #6a2daa; -fx-font-size: 11px; -fx-font-weight: bold;" />
+                        </HBox>
+                        <!-- Leaderboard rows (populated by controller) -->
+                        <VBox fx:id="leaderboardContainer" spacing="6" />
+                        <Label fx:id="lblLeaderEmpty" text="Chưa có dữ liệu đấu giá."
+                               style="-fx-text-fill: #3a2550; -fx-font-size: 12px; -fx-font-style: italic;" visible="false" />
+                    </VBox>
+                </HBox>
+
+                <!-- ── Recent activity bar ── -->
+                <VBox spacing="10"
+                      style="-fx-background-color: #160c2a; -fx-border-color: #2d1857; -fx-border-radius: 14; -fx-background-radius: 14; -fx-border-width: 1; -fx-padding: 16 20 16 20;">
+                    <Label text="⏱️  Hoạt động gần đây" style="-fx-text-fill: #c77dff; -fx-font-size: 13px; -fx-font-weight: bold;" />
+                    <Label fx:id="lblRecentActivity" text="Chưa có giao dịch nào."
+                           style="-fx-text-fill: #6a4a8a; -fx-font-size: 12px; -fx-font-style: italic;" wrapText="true" />
+                </VBox>
+
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>
