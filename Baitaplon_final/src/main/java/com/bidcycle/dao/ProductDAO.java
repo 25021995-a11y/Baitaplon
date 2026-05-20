@@ -47,17 +47,12 @@ public class ProductDAO {
                 int    id    = rs.getInt("id");
                 String name  = rs.getString("name");
                 double price = rs.getDouble("cur_price");
-
+                boolean isFinished = rs.getBoolean("is_finished");
                 // Tính durationInMinutes từ start_time và end_time
-                Timestamp startTime = rs.getTimestamp("start_time");
-                Timestamp endTime   = rs.getTimestamp("end_time");
-                int durationInMinutes = 0;
-                if (startTime != null && endTime != null) {
-                    durationInMinutes = (int) ChronoUnit.MINUTES.between(
-                            startTime.toLocalDateTime(),
-                            endTime.toLocalDateTime()
-                    );
-                }
+                LocalDateTime startTime = rs.getTimestamp("start_time").toLocalDateTime();
+                LocalDateTime endTime = rs.getTimestamp("end_time").toLocalDateTime();
+
+
 
                 // Lấy owner (seller) theo seller_id
                 int  sellerId = rs.getInt("seller_id");
@@ -68,16 +63,7 @@ public class ProductDAO {
                 String imagePath   = "";
                 String category    = "Khác";
 
-                Product p = new Product(
-                        id,
-                        name,
-                        price,
-                        durationInMinutes,
-                        owner,
-                        description,
-                        imagePath,
-                        category
-                );
+                Product p = new Product(id, name, price, startTime, endTime, owner);
 
                 // Đồng bộ highest_bidder nếu có
                 int highestBidderId = rs.getInt("highest_bidder_id");
@@ -87,7 +73,7 @@ public class ProductDAO {
                 }
 
                 // Đồng bộ trạng thái kết thúc
-                boolean isFinished = rs.getBoolean("is_finished");
+
                 p.setFinished(isFinished);
 
                 productList.add(p);
