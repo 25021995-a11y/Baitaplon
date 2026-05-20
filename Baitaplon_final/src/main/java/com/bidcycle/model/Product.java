@@ -55,6 +55,16 @@ public class Product {
         this.imagePath   = imagePath   != null ? imagePath   : "";
         this.category    = category    != null ? category    : "Khác";
     }
+    public Product(int productId, String name, double curPrice,
+                   LocalDateTime startTime, LocalDateTime endTime,User owner) {
+        this.startPrice=curPrice;
+        this.productId = productId;
+        this.name = name;
+        this.curPrice = curPrice;
+        this.startTime = startTime; // Gán thẳng giá trị lấy từ DB, không gọi .now()
+        this.endTime = endTime;     // Gán thẳng giá trị lấy từ DB
+        this.owner=owner;
+    }
 
     public Product(int productId, String name, double price, int durationInMinutes, User owner) {
         this(productId, name, price, durationInMinutes, owner, "", "", "Khác");
