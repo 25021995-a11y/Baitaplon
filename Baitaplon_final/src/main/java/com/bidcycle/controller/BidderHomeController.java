@@ -201,6 +201,10 @@ public class BidderHomeController {
             }
 
             Product.BidResult result = selected.processBid(user, bidPrice, autoBid, stepPrice);
+            if (result.isSuccess) {
+                // Lấy ID sản phẩm, ID người đặt, và Giá hiện tại vừa được processBid cập nhật
+                ProductDAO.updateHighestBid(selected.getProductId(), user.getUserId(), selected.getPrice());
+            }
             showStatus(result.message, result.isSuccess ? Color.valueOf("#00e676") : Color.RED);
             bidInput.clear();
             txtStepPrice.clear();

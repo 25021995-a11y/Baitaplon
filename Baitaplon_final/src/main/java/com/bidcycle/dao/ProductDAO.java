@@ -83,4 +83,21 @@ public class ProductDAO {
         }
         return productList;
     }
+    public static boolean updateHighestBid(int productId, int bidderId, double currentPrice) {
+        // Tên cột khớp với DB của bạn: cur_price và highest_bidder_id
+        String sql = "UPDATE products SET cur_price = ?, highest_bidder_id = ? WHERE id = ?";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setDouble(1, currentPrice);
+            pstmt.setInt(2, bidderId);
+            pstmt.setInt(3, productId);
+
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }
