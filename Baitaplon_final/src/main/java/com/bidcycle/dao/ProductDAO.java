@@ -13,6 +13,29 @@ public class ProductDAO {
     // 1. HÀM LƯU SẢN PHẨM (Dành cho Seller)
     // Nhận sellerId (int) thay vì seller_name để khớp với FK trong DB
     public static boolean insertProduct(String name, double price, int durationMinutes, int sellerId) {
+        String sql = "INSERT INTO products (name, cur_price, start_price, start_time, end_time, seller_id) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            LocalDateTime startTime = LocalDateTime.now();
+            LocalDateTime endTime   = startTime.plusMinutes(durationMinutes);
+
+            pstmt.setString(1, name);
+            pstmt.setDouble(2, price);
+            pstmt.setDouble(3, price);
+            pstmt.setTimestamp(4, Timestamp.valueOf(startTime));
+            pstmt.setTimestamp(5, Timestamp.valueOf(endTime));
+            pstmt.setInt(6, sellerId);
+
+            int rowsAffected = pstmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            // Fallback nếu chưa có cột start_price
+            return insertProductBasic(name, price, durationMinutes, sellerId);
+        }
+    }
+
+    private static boolean insertProductBasic(String name, double price, int durationMinutes, int sellerId) {
         String sql = "INSERT INTO products (name, cur_price, start_time, end_time, seller_id) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -26,8 +49,7 @@ public class ProductDAO {
             pstmt.setTimestamp(4, Timestamp.valueOf(endTime));
             pstmt.setInt(5, sellerId);
 
-            int rowsAffected = pstmt.executeUpdate();
-            return rowsAffected > 0;
+            return pstmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
@@ -46,13 +68,19 @@ public class ProductDAO {
             while (rs.next()) {
                 int    id    = rs.getInt("id");
                 String name  = rs.getString("name");
-                double price = rs.getDouble("cur_price");
+                double curPrice = rs.getDouble("cur_price");
+                double startPrice = 0;
+                try {
+                    startPrice = rs.getDouble("start_price");
+                    if (rs.wasNull()) startPrice = curPrice;
+                } catch (Exception e) {
+                    startPrice = curPrice;
+                }
+
                 boolean isFinished = rs.getBoolean("is_finished");
                 // Tính durationInMinutes từ start_time và end_time
                 LocalDateTime startTime = rs.getTimestamp("start_time").toLocalDateTime();
                 LocalDateTime endTime = rs.getTimestamp("end_time").toLocalDateTime();
-
-
 
                 // Lấy owner (seller) theo seller_id
                 int  sellerId = rs.getInt("seller_id");
@@ -63,7 +91,7 @@ public class ProductDAO {
                 String imagePath   = "";
                 String category    = "Khác";
 
-                Product p = new Product(id, name, price, startTime, endTime, owner);
+                Product p = new Product(id, name, startPrice, curPrice, startTime, endTime, owner);
 
                 // Đồng bộ highest_bidder nếu có
                 int highestBidderId = rs.getInt("highest_bidder_id");
@@ -82,5 +110,18 @@ public class ProductDAO {
             e.printStackTrace();
         }
         return productList;
+    }
+
+    public static void updateProductBid(int productId, double newPrice, int bidderId) {
+        String sql = "UPDATE products SET cur_price = ?, highest_bidder_id = ? WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setDouble(1, newPrice);
+            pstmt.setInt(2, bidderId);
+            pstmt.setInt(3, productId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

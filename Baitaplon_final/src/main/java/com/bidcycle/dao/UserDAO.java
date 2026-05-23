@@ -142,9 +142,9 @@ public class UserDAO {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return mapResultSetToUser(
-                            rs.getStatement().getResultSet(),
+                            rs,
                             rs.getString("username"),
-                            rs.getString("role")
+                            rs.getString("password")
                     );
                 }
             } // Đóng try-with-resources của ResultSet

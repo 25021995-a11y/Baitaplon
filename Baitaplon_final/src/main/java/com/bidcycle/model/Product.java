@@ -1,5 +1,6 @@
 package com.bidcycle.model;
 
+import com.bidcycle.dao.ProductDAO;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -55,15 +56,15 @@ public class Product {
         this.imagePath   = imagePath   != null ? imagePath   : "";
         this.category    = category    != null ? category    : "Khác";
     }
-    public Product(int productId, String name, double curPrice,
-                   LocalDateTime startTime, LocalDateTime endTime,User owner) {
-        this.startPrice=curPrice;
+    public Product(int productId, String name, double startPrice, double curPrice,
+                   LocalDateTime startTime, LocalDateTime endTime, User owner) {
         this.productId = productId;
         this.name = name;
+        this.startPrice = startPrice;
         this.curPrice = curPrice;
-        this.startTime = startTime; // Gán thẳng giá trị lấy từ DB, không gọi .now()
-        this.endTime = endTime;     // Gán thẳng giá trị lấy từ DB
-        this.owner=owner;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.owner = owner;
     }
 
     public Product(int productId, String name, double price, int durationInMinutes, User owner) {
@@ -141,13 +142,17 @@ public class Product {
         newBidder.recordBid(this.name, amount);
 
         if (highestBidder == null) {
-            return setNewLeader(newBidder, amount, isAutoBid, userStep, null, 0);
+            BidResult res = setNewLeader(newBidder, amount, isAutoBid, userStep, null, 0);
+            if (res.isSuccess) ProductDAO.updateProductBid(this.productId, amount, newBidder.getUserId());
+            return res;
         }
 
         // Cùng người đặt lại
         if (highestBidder.getUserId() == newBidder.getUserId()) {
             newBidder.unlockVirMoney(lockedAmountPrev);
-            return setNewLeader(newBidder, amount, isAutoBid, userStep, null, 0);
+            BidResult res = setNewLeader(newBidder, amount, isAutoBid, userStep, null, 0);
+            if (res.isSuccess) ProductDAO.updateProductBid(this.productId, amount, newBidder.getUserId());
+            return res;
         }
 
         // Có auto-bid đang hoạt động
@@ -160,20 +165,26 @@ public class Product {
                 curPrice = autoCounter;
                 highestBidder.lockVirMoney(autoCounter);
                 lockedAmountPrev = autoCounter;
+                ProductDAO.updateProductBid(this.productId, autoCounter, highestBidder.getUserId());
                 return BidResult.failure("Auto-Bid tự động phản công! Giá hiện tại: $"
                     + String.format("%.2f", curPrice));
             } else if (amount == autoBidMax) {
                 curPrice = autoBidMax;
+                ProductDAO.updateProductBid(this.productId, autoBidMax, highestBidder.getUserId());
                 return BidResult.failure(
                     "Giá bằng Auto-Bid tối đa. Người đang dẫn vẫn thắng theo quy tắc đặt trước.");
             } else {
                 autoBidHolder.unlockVirMoney(lockedAmountPrev);
-                return setNewLeader(newBidder, amount, isAutoBid, userStep, autoBidHolder, lockedAmountPrev);
+                BidResult res = setNewLeader(newBidder, amount, isAutoBid, userStep, autoBidHolder, lockedAmountPrev);
+                if (res.isSuccess) ProductDAO.updateProductBid(this.productId, amount, newBidder.getUserId());
+                return res;
             }
         }
 
         highestBidder.unlockVirMoney(lockedAmountPrev);
-        return setNewLeader(newBidder, amount, isAutoBid, userStep, highestBidder, lockedAmountPrev);
+        BidResult res = setNewLeader(newBidder, amount, isAutoBid, userStep, highestBidder, lockedAmountPrev);
+        if (res.isSuccess) ProductDAO.updateProductBid(this.productId, amount, newBidder.getUserId());
+        return res;
     }
 
     private BidResult setNewLeader(User newBidder, double amount,
