@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.bidcycle.controller.AdminController"
+            style="-fx-background-color: #0d0817; -fx-text-fill: #e0caff;">
+
+    <!-- TOP BAR / HEADER -->
+    <top>
+        <HBox spacing="15" style="-fx-background-color: #1a0e2e; -fx-padding: 12;" alignment="CENTER_LEFT">
+            <VBox style="-fx-padding: 0;">
+                <Label text="🔐 ADMIN CONTROL PANEL" style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #c77dff;"/>
+                <Label fx:id="lblAdminName" style="-fx-font-size: 11; -fx-text-fill: #9d4edd;"/>
+            </VBox>
+
+            <Region HBox.hgrow="ALWAYS"/>
+
+            <Button text="🔄 Refresh" onAction="#onRefresh"
+                    style="-fx-font-size: 11; -fx-padding: 8; -fx-background-color: #5a2d9a; -fx-text-fill: #e0caff;"/>
+            <Button text="🚪 Logout" onAction="#onLogout"
+                    style="-fx-font-size: 11; -fx-padding: 8; -fx-background-color: #d62828; -fx-text-fill: #ffffff;"/>
+        </HBox>
+    </top>
+
+    <!-- MAIN CONTENT: TAB PANE -->
+    <center>
+        <TabPane fx:id="mainTabPane" style="-fx-background-color: #0d0817;" tabClosingPolicy="UNAVAILABLE">
+
+            <!-- TAB 1: DASHBOARD -->
+            <Tab text="📊 Dashboard" fx:id="tabDashboard">
+                <VBox spacing="15" style="-fx-padding: 20;">
+                    <Label text="System Overview" style="-fx-font-size: 16; -fx-font-weight: bold; -fx-text-fill: #00e5b0;"/>
+
+                    <!-- Stats Grid -->
+                    <GridPane hgap="15" vgap="15">
+                        <columnConstraints>
+                            <ColumnConstraints percentWidth="33"/>
+                            <ColumnConstraints percentWidth="33"/>
+                            <ColumnConstraints percentWidth="33"/>
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints/>
+                            <RowConstraints/>
+                        </rowConstraints>
+
+                        <!-- Users Stats -->
+                        <VBox spacing="8" style="-fx-border-color: #5a2d9a; -fx-border-width: 1; -fx-padding: 15; -fx-border-radius: 8;" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label text="Total Users" style="-fx-text-fill: #9d4edd; -fx-font-size: 11;"/>
+                            <Label fx:id="lblTotalUsers" text="0" style="-fx-text-fill: #00e5b0; -fx-font-size: 24; -fx-font-weight: bold;"/>
+                        </VBox>
+
+                        <VBox spacing="8" style="-fx-border-color: #5a2d9a; -fx-border-width: 1; -fx-padding: 15; -fx-border-radius: 8;" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label text="Active Users" style="-fx-text-fill: #9d4edd; -fx-font-size: 11;"/>
+                            <Label fx:id="lblActiveUsers" text="0" style="-fx-text-fill: #00e5b0; -fx-font-size: 24; -fx-font-weight: bold;"/>
+                        </VBox>
+
+                        <VBox spacing="8" style="-fx-border-color: #5a2d9a; -fx-border-width: 1; -fx-padding: 15; -fx-border-radius: 8;" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                            <Label text="Banned Users" style="-fx-text-fill: #9d4edd; -fx-font-size: 11;"/>
+                            <Label fx:id="lblBannedUsers" text="0" style="-fx-text-fill: #d62828; -fx-font-size: 24; -fx-font-weight: bold;"/>
+                        </VBox>
+
+                        <!-- Products Stats -->
+                        <VBox spacing="8" style="-fx-border-color: #5a2d9a; -fx-border-width: 1; -fx-padding: 15; -fx-border-radius: 8;" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label text="Total Products" style="-fx-text-fill: #9d4edd; -fx-font-size: 11;"/>
+                            <Label fx:id="lblTotalProducts" text="0" style="-fx-text-fill: #00e5b0; -fx-font-size: 24; -fx-font-weight: bold;"/>
+                        </VBox>
+
+                        <VBox spacing="8" style="-fx-border-color: #5a2d9a; -fx-border-width: 1; -fx-padding: 15; -fx-border-radius: 8;" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Label text="Ongoing Auctions" style="-fx-text-fill: #9d4edd; -fx-font-size: 11;"/>
+                            <Label fx:id="lblOngoingAuctions" text="0" style="-fx-text-fill: #ffd700; -fx-font-size: 24; -fx-font-weight: bold;"/>
+                        </VBox>
+
+                        <VBox spacing="8" style="-fx-border-color: #5a2d9a; -fx-border-width: 1; -fx-padding: 15; -fx-border-radius: 8;" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                            <Label text="Finished Auctions" style="-fx-text-fill: #9d4edd; -fx-font-size: 11;"/>
+                            <Label fx:id="lblFinishedAuctions" text="0" style="-fx-text-fill: #00e5b0; -fx-font-size: 24; -fx-font-weight: bold;"/>
+                        </VBox>
+                    </GridPane>
+                </VBox>
+            </Tab>
+
+            <!-- TAB 2: USERS MANAGEMENT -->
+            <Tab text="👥 Users" fx:id="tabUsers">
+                <VBox spacing="10" style="-fx-padding: 15;">
+                    <Label text="User Account Management" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #00e5b0;"/>
+
+                    <TableView fx:id="usersTable" style="-fx-background-color: #160c2a; -fx-text-fill: #e0caff;" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colUserId" text="ID" prefWidth="50"/>
+                            <TableColumn fx:id="colUsername" text="Username" prefWidth="150"/>
+                            <TableColumn fx:id="colEmail" text="Email" prefWidth="200"/>
+                            <TableColumn fx:id="colBalance" text="Balance" prefWidth="100"/>
+                            <TableColumn fx:id="colStatus" text="Status" prefWidth="100"/>
+                        </columns>
+                    </TableView>
+
+                    <HBox spacing="10">
+                        <Button fx:id="btnApproveUser" text="✓ Approve Account" onAction="#onApproveUser"
+                                style="-fx-font-size: 12; -fx-padding: 8 15; -fx-background-color: #00e5b0; -fx-text-fill: #000000; -fx-font-weight: bold;"/>
+
+                        <VBox spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Ban Reason:" style="-fx-text-fill: #9d4edd; -fx-font-size: 11;"/>
+                            <TextField fx:id="txtBanReason" promptText="Enter ban reason..."
+                                      style="-fx-control-inner-background: #1a0e2e; -fx-text-fill: #e0caff; -fx-prompt-text-fill: #6a4a8a;"/>
+                        </VBox>
+
+                        <Button fx:id="btnBanUser" text="✗ Ban User" onAction="#onBanUser"
+                                style="-fx-font-size: 12; -fx-padding: 8 15; -fx-background-color: #d62828; -fx-text-fill: #ffffff; -fx-font-weight: bold;"/>
+                    </HBox>
+                </VBox>
+            </Tab>
+
+            <!-- TAB 3: ITEMS MANAGEMENT -->
+            <Tab text="📦 Items" fx:id="tabItems">
+                <VBox spacing="10" style="-fx-padding: 15;">
+                    <Label text="Product &amp; Auction Management" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #00e5b0;"/>
+
+                    <TableView fx:id="itemsTable" style="-fx-background-color: #160c2a; -fx-text-fill: #e0caff;" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn fx:id="colItemId" text="ID" prefWidth="50"/>
+                            <TableColumn fx:id="colItemName" text="Product Name" prefWidth="200"/>
+                            <TableColumn fx:id="colOwner" text="Owner" prefWidth="150"/>
+                            <TableColumn fx:id="colPrice" text="Starting Price" prefWidth="100"/>
+                        </columns>
+                    </TableView>
+
+                    <HBox spacing="10">
+                        <Button fx:id="btnApproveItem" text="✓ Approve Item" onAction="#onApproveItem"
+                                style="-fx-font-size: 12; -fx-padding: 8 15; -fx-background-color: #00e5b0; -fx-text-fill: #000000; -fx-font-weight: bold;"/>
+                        <Button fx:id="btnRejectItem" text="✗ Reject Item" onAction="#onRejectItem"
+                                style="-fx-font-size: 12; -fx-padding: 8 15; -fx-background-color: #9d4edd; -fx-text-fill: #ffffff; -fx-font-weight: bold;"/>
+                        <Button fx:id="btnStopAuction" text="⏹ Force Stop" onAction="#onStopAuction"
+                                style="-fx-font-size: 12; -fx-padding: 8 15; -fx-background-color: #d62828; -fx-text-fill: #ffffff; -fx-font-weight: bold;"/>
+                    </HBox>
+                </VBox>
+            </Tab>
+
+            <!-- TAB 5: CONFIGURATION -->
+            <Tab text="⚙️ Config" fx:id="tabConfig">
+                <VBox spacing="15" style="-fx-padding: 20;">
+                    <Label text="System Configuration" style="-fx-font-size: 14; -fx-font-weight: bold; -fx-text-fill: #00e5b0;"/>
+
+                    <!-- Transaction Fee Settings -->
+                    <VBox spacing="10" style="-fx-border-color: #5a2d9a; -fx-border-width: 1; -fx-padding: 15; -fx-border-radius: 5;">
+                        <Label text="Transaction Fee Setting" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #c77dff;"/>
+
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Label text="Fee Percentage (%)" style="-fx-text-fill: #9d4edd;"/>
+                            <Spinner fx:id="spinTransactionFee" prefWidth="100" style="-fx-control-inner-background: #1a0e2e; -fx-text-fill: #e0caff;"/>
+                            <Button fx:id="btnSaveFee" text="💾 Save Fee" onAction="#onSaveFee"
+                                    style="-fx-font-size: 11; -fx-padding: 8 15; -fx-background-color: #00e5b0; -fx-text-fill: #000000; -fx-font-weight: bold;"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Report Generation -->
+                    <VBox spacing="10" style="-fx-border-color: #5a2d9a; -fx-border-width: 1; -fx-padding: 15; -fx-border-radius: 5;" VBox.vgrow="ALWAYS">
+                        <Label text="System Report" style="-fx-font-size: 12; -fx-font-weight: bold; -fx-text-fill: #c77dff;"/>
+
+                        <Button fx:id="btnGenerateReport" text="📋 Generate Report" onAction="#onGenerateReport"
+                                style="-fx-font-size: 11; -fx-padding: 8 15; -fx-background-color: #5a2d9a; -fx-text-fill: #e0caff; -fx-font-weight: bold;"/>
+
+                        <TextArea fx:id="txtReport" wrapText="true"
+                                 style="-fx-control-inner-background: #0d0817; -fx-text-fill: #00e5b0; -fx-font-family: 'Courier New';"
+                                 VBox.vgrow="ALWAYS"/>
+                    </VBox>
+                </VBox>
+            </Tab>
+        </TabPane>
+    </center>
+</BorderPane>
+
