@@ -48,33 +48,25 @@ public class ProductDAO {
                 String name  = rs.getString("name");
                 double price = rs.getDouble("cur_price");
                 boolean isFinished = rs.getBoolean("is_finished");
-                // Tính durationInMinutes từ start_time và end_time
                 LocalDateTime startTime = rs.getTimestamp("start_time").toLocalDateTime();
                 LocalDateTime endTime = rs.getTimestamp("end_time").toLocalDateTime();
 
-
-
-                // Lấy owner (seller) theo seller_id
                 int  sellerId = rs.getInt("seller_id");
                 User owner    = UserDAO.getUserById(sellerId);
 
-                // description, image_path, category không có trong schema hiện tại
-                String description = "";
-                String imagePath   = "";
-                String category    = "Khác";
-
                 Product p = new Product(id, name, price, startTime, endTime, owner);
 
-                // Đồng bộ highest_bidder nếu có
                 int highestBidderId = rs.getInt("highest_bidder_id");
                 if (!rs.wasNull()) {
                     User highestBidder = UserDAO.getUserById(highestBidderId);
                     p.setHighestBidder(highestBidder);
+                    p.setLockedAmountPrev(price); 
                 }
 
-                // Đồng bộ trạng thái kết thúc
-
                 p.setFinished(isFinished);
+                
+                // Tải danh sách Auto-Bids cho sản phẩm này
+                p.setAutoBids(getAutoBidsForProduct(id));
 
                 productList.add(p);
             }
@@ -83,18 +75,72 @@ public class ProductDAO {
         }
         return productList;
     }
-    public static boolean updateHighestBid(int productId, int bidderId, double currentPrice) {
-        // Tên cột khớp với DB của bạn: cur_price và highest_bidder_id
-        String sql = "UPDATE products SET cur_price = ?, highest_bidder_id = ? WHERE id = ?";
 
+    public static List<Product.AutoBidConfig> getAutoBidsForProduct(int productId) {
+        List<Product.AutoBidConfig> configs = new ArrayList<>();
+        String sql = "SELECT * FROM auto_bids WHERE product_id = ? ORDER BY created_at ASC";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, productId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    User user = UserDAO.getUserById(rs.getInt("user_id"));
+                    double maxBid = rs.getDouble("max_bid");
+                    double increment = rs.getDouble("increment");
+                    LocalDateTime createdAt = rs.getTimestamp("created_at").toLocalDateTime();
+                    configs.add(new Product.AutoBidConfig(user, maxBid, increment, createdAt));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return configs;
+    }
 
-            pstmt.setDouble(1, currentPrice);
-            pstmt.setInt(2, bidderId);
-            pstmt.setInt(3, productId);
+    public static boolean updateHighestBid(Product p) {
+        // Cập nhật giá và người dẫn đầu trong bảng products
+        String sqlProduct = "UPDATE products SET cur_price = ?, highest_bidder_id = ? WHERE id = ?";
+        
+        try (Connection conn = DatabaseConnection.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                // 1. Cập nhật bảng products
+                try (PreparedStatement pstmt = conn.prepareStatement(sqlProduct)) {
+                    pstmt.setDouble(1, p.getPrice());
+                    if (p.getHighestBidder() != null) {
+                        pstmt.setInt(2, p.getHighestBidder().getUserId());
+                    } else {
+                        pstmt.setNull(2, Types.INTEGER);
+                    }
+                    pstmt.setInt(3, p.getProductId());
+                    pstmt.executeUpdate();
+                }
 
-            return pstmt.executeUpdate() > 0;
+                // 2. Cập nhật bảng auto_bids (xóa cũ thêm mới để đơn giản, hoặc dùng UPSERT)
+                // Ở đây ta dùng UPSERT logic cho từng config trong p.getAutoBids()
+                String sqlUpsertAuto = "INSERT INTO auto_bids (product_id, user_id, max_bid, increment, created_at) " +
+                                     "VALUES (?, ?, ?, ?, ?) " +
+                                     "ON DUPLICATE KEY UPDATE max_bid = VALUES(max_bid), increment = VALUES(increment)";
+                
+                try (PreparedStatement pstmt = conn.prepareStatement(sqlUpsertAuto)) {
+                    for (Product.AutoBidConfig config : p.getAutoBids()) {
+                        pstmt.setInt(1, p.getProductId());
+                        pstmt.setInt(2, config.getUser().getUserId());
+                        pstmt.setDouble(3, config.getMaxBid());
+                        pstmt.setDouble(4, config.getIncrement());
+                        pstmt.setTimestamp(5, Timestamp.valueOf(config.getCreatedAt()));
+                        pstmt.addBatch();
+                    }
+                    pstmt.executeBatch();
+                }
+
+                conn.commit();
+                return true;
+            } catch (SQLException e) {
+                conn.rollback();
+                e.printStackTrace();
+                return false;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             return false;

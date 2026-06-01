@@ -30,10 +30,34 @@ public class Product {
     private int searchCount = 0;
 
     // Auto-bid state
-    private User   autoBidHolder    = null;
-    private double autoBidMax       = 0.0;
-    private double autoBidStep      = 0.0;
+    private java.util.List<AutoBidConfig> autoBids = new java.util.ArrayList<>();
     private double lockedAmountPrev = 0.0;
+
+    public java.util.List<AutoBidConfig> getAutoBids() { return autoBids; }
+    public void setAutoBids(java.util.List<AutoBidConfig> list) { this.autoBids = list; }
+
+    public static class AutoBidConfig {
+        private final User user;
+        private final double maxBid;
+        private final double increment;
+        private final LocalDateTime createdAt;
+
+        public AutoBidConfig(User user, double maxBid, double increment) {
+            this(user, maxBid, increment, LocalDateTime.now());
+        }
+        public AutoBidConfig(User user, double maxBid, double increment, LocalDateTime createdAt) {
+            this.user = user;
+            this.maxBid = maxBid;
+            this.increment = increment;
+            this.createdAt = createdAt;
+        }
+        public User getUser() { return user; }
+        public double getMaxBid() { return maxBid; }
+        public double getIncrement() { return increment; }
+        public LocalDateTime getCreatedAt() { return createdAt; }
+    }
+    public double getLockedAmountPrev() { return lockedAmountPrev; }
+    public void setLockedAmountPrev(double a) { this.lockedAmountPrev = a; }
 
     // ── Constructors ──────────────────────────────────────────
 
@@ -123,83 +147,116 @@ public class Product {
     // ── Đặt giá ──────────────────────────────────────────────
 
     /**
-     * Xử lý đặt giá. Kiểm tra user không được đấu giá sản phẩm của chính mình.
+     * Xử lý đặt giá. Hỗ trợ nhiều người Auto-Bid đồng thời.
      */
     public synchronized BidResult processBid(User newBidder, double amount,
                                               boolean isAutoBid, double userStep) {
         if (isFinished) return BidResult.failure("Phiên đấu giá đã kết thúc!");
 
-        // Không được đấu giá sản phẩm của chính mình
         if (owner != null && owner.getUserId() == newBidder.getUserId()) {
             return BidResult.failure("Bạn không thể đấu giá sản phẩm của chính mình!");
         }
 
-        if (amount <= curPrice)
-            return BidResult.failure("Giá phải cao hơn giá hiện tại ($"
-                + String.format("%.2f", curPrice) + ")!");
-        if (!newBidder.canAfford(amount))
-            return BidResult.failure(
-                "Số dư khả dụng không đủ! Hiện có: $" + String.format("%.2f", newBidder.getVirMoney()));
+        // 1. Cập nhật hoặc thêm cấu hình Auto-Bid của người dùng này
+        if (isAutoBid) {
+            if (!newBidder.canAfford(amount)) {
+                return BidResult.failure("Số dư không đủ để đặt mức giá tối đa: $" + String.format("%.2f", amount));
+            }
+            autoBids.removeIf(config -> config.getUser().getUserId() == newBidder.getUserId());
+            autoBids.add(new AutoBidConfig(newBidder, amount, userStep));
+        }
 
-        newBidder.recordBid(this.name, amount);
+        // 2. Logic đấu giá chính
+        // Nếu không phải auto-bid, kiểm tra giá đặt cao hơn giá hiện tại
+        if (!isAutoBid && amount <= curPrice) {
+            return BidResult.failure("Giá phải cao hơn giá hiện tại ($" + String.format("%.2f", curPrice) + ")!");
+        }
+        
+        // Nếu là bid thủ công, xử lý như một bid đơn lẻ và kích hoạt auto-bid competition
+        // Nếu là đăng ký auto-bid mới, nó cũng có thể kích hoạt competition nếu maxBid > curPrice
 
+        return resolveCompetition(newBidder, amount, isAutoBid);
+    }
+
+    private BidResult resolveCompetition(User triggerUser, double triggerAmount, boolean wasAutoReg) {
+        // Thuật toán: 
+        // Lặp cho đến khi không còn sự thay đổi về người dẫn đầu hoặc giá.
+        // Trong mỗi vòng, tìm người có thể đặt giá cao nhất dựa trên luật:
+        // - Người đang dẫn đầu (highestBidder) giữ vị thế.
+        // - Những người khác (bao gồm triggerUser nếu không phải highestBidder) cố gắng vượt qua.
+        // - Ưu tiên người đăng ký auto-bid trước.
+
+        boolean changed = true;
+        String message = "";
+        
+        // Nếu chưa có ai dẫn đầu, gán tạm triggerUser nếu đủ điều kiện
         if (highestBidder == null) {
-            return setNewLeader(newBidder, amount, isAutoBid, userStep, null, 0);
-        }
-
-        // Cùng người đặt lại
-        if (highestBidder.getUserId() == newBidder.getUserId()) {
-            newBidder.unlockVirMoney(lockedAmountPrev);
-            return setNewLeader(newBidder, amount, isAutoBid, userStep, null, 0);
-        }
-
-        // Có auto-bid đang hoạt động
-        if (autoBidHolder != null && autoBidHolder.getUserId() == highestBidder.getUserId()) {
-            double autoCounter = amount + autoBidStep;
-            if (autoCounter <= autoBidMax) {
-                newBidder.lockVirMoney(amount);
-                newBidder.unlockVirMoney(amount);
+            double startBid = Math.max(startPrice, triggerAmount); 
+            // Nếu là đăng ký auto-bid, giá khởi điểm có thể là startPrice
+            if (wasAutoReg) startBid = startPrice;
+            
+            setNewLeader(triggerUser, startBid);
+            message = "✅ Bạn đang dẫn đầu!";
+        } else if (!wasAutoReg && triggerAmount > curPrice) {
+            // Bid thủ công vượt giá hiện tại
+            if (highestBidder.getUserId() != triggerUser.getUserId()) {
                 highestBidder.unlockVirMoney(lockedAmountPrev);
-                curPrice = autoCounter;
-                highestBidder.lockVirMoney(autoCounter);
-                lockedAmountPrev = autoCounter;
-                return BidResult.failure("Auto-Bid tự động phản công! Giá hiện tại: $"
-                    + String.format("%.2f", curPrice));
-            } else if (amount == autoBidMax) {
-                curPrice = autoBidMax;
-                return BidResult.failure(
-                    "Giá bằng Auto-Bid tối đa. Người đang dẫn vẫn thắng theo quy tắc đặt trước.");
-            } else {
-                autoBidHolder.unlockVirMoney(lockedAmountPrev);
-                return setNewLeader(newBidder, amount, isAutoBid, userStep, autoBidHolder, lockedAmountPrev);
+            }
+            setNewLeader(triggerUser, triggerAmount);
+            message = "✅ Bạn đang dẫn đầu!";
+        }
+
+        while (changed) {
+            changed = false;
+            
+            // Tìm đối thủ tiềm năng có thể vượt qua highestBidder
+            // Bao gồm những người trong danh sách autoBids
+            
+            // Sắp xếp autoBids theo thời gian đăng ký để đảm bảo ưu tiên người đăng ký trước
+            autoBids.sort(java.util.Comparator.comparing(AutoBidConfig::getCreatedAt));
+
+            for (AutoBidConfig config : autoBids) {
+                User opponent = config.getUser();
+                if (highestBidder != null && opponent.getUserId() == highestBidder.getUserId()) continue;
+
+                // Đối thủ cố gắng vượt qua curPrice
+                double nextBid = curPrice + config.getIncrement();
+                
+                // Nếu giá khởi điểm của sản phẩm chưa bị ai bid (chưa có highestBidder thực sự)
+                // Hoặc opponent muốn nhảy vào
+                
+                if (nextBid <= config.getMaxBid()) {
+                    // Đối thủ có thể nâng giá
+                    if (highestBidder != null) {
+                        highestBidder.unlockVirMoney(lockedAmountPrev);
+                    }
+                    setNewLeader(opponent, nextBid);
+                    changed = true;
+                    message = "Auto-Bid phản công! " + opponent.getUsername() + " đang dẫn đầu với $" + String.format("%.2f", curPrice);
+                } else if (curPrice < config.getMaxBid()) {
+                    // Đối thủ không thể cộng thêm bước giá nhưng có thể lên tới maxBid
+                    if (highestBidder != null) {
+                        highestBidder.unlockVirMoney(lockedAmountPrev);
+                    }
+                    setNewLeader(opponent, config.getMaxBid());
+                    changed = true;
+                    message = "Auto-Bid phản công! " + opponent.getUsername() + " đang dẫn đầu với $" + String.format("%.2f", curPrice);
+                }
             }
         }
 
-        highestBidder.unlockVirMoney(lockedAmountPrev);
-        return setNewLeader(newBidder, amount, isAutoBid, userStep, highestBidder, lockedAmountPrev);
+        if (highestBidder != null && highestBidder.getUserId() == triggerUser.getUserId()) {
+            return BidResult.success(wasAutoReg ? "✅ Đã kích hoạt Auto-Bid thành công!" : "✅ Đặt giá thành công!");
+        } else {
+            return BidResult.failure(message.isEmpty() ? "Giá của bạn đã bị vượt qua!" : message);
+        }
     }
 
-    private BidResult setNewLeader(User newBidder, double amount,
-                                   boolean isAutoBid, double step,
-                                   User prevLoser, double prevLockedAmount) {
+    private void setNewLeader(User newBidder, double amount) {
         newBidder.lockVirMoney(amount);
         lockedAmountPrev = amount;
         curPrice      = amount;
         highestBidder = newBidder;
-
-        if (isAutoBid) {
-            autoBidHolder = newBidder;
-            autoBidMax    = amount;
-            autoBidStep   = step > 0 ? step : 1;
-            return BidResult.success("✅ Auto-Bid đã kích hoạt! Bạn đang dẫn đầu với $"
-                + String.format("%.2f", curPrice));
-        } else {
-            autoBidHolder = null;
-            autoBidMax    = 0;
-            autoBidStep   = 0;
-            return BidResult.success("✅ Đặt giá thành công! Bạn đang dẫn đầu với $"
-                + String.format("%.2f", curPrice));
-        }
     }
 
     // ── Inner class kết quả ───────────────────────────────────
