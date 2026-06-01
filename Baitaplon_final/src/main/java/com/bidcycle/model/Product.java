@@ -102,6 +102,7 @@ public class Product {
     public double getStartPrice()             { return startPrice; }
     public double getPrice()                  { return curPrice; }
     public void   setCurPrice(double amount)  { this.curPrice = amount; }
+    public LocalDateTime getEndTime()         { return endTime; }
     public String getDescription()            { return description != null ? description : ""; }
     public void   setDescription(String d)    { this.description = d; }
     public String getImagePath()              { return imagePath != null ? imagePath : ""; }
@@ -171,11 +172,19 @@ public class Product {
         if (!isAutoBid && amount <= curPrice) {
             return BidResult.failure("Giá phải cao hơn giá hiện tại ($" + String.format("%.2f", curPrice) + ")!");
         }
-        
-        // Nếu là bid thủ công, xử lý như một bid đơn lẻ và kích hoạt auto-bid competition
-        // Nếu là đăng ký auto-bid mới, nó cũng có thể kích hoạt competition nếu maxBid > curPrice
 
-        return resolveCompetition(newBidder, amount, isAutoBid);
+        BidResult result = resolveCompetition(newBidder, amount, isAutoBid);
+        
+        // 3. Logic chống gian lận: Nếu đặt giá trong 10 giây cuối, tăng thời gian thêm 1 phút
+        if (result.isSuccess) {
+            Duration remaining = Duration.between(LocalDateTime.now(), endTime);
+            if (!remaining.isNegative() && remaining.toSeconds() <= 10) {
+                this.endTime = this.endTime.plusMinutes(1);
+                result.message += "\n⏰ Phát hiện đấu giá phút chót! Thời gian kết thúc được gia hạn thêm 1 phút.";
+            }
+        }
+        
+        return result;
     }
 
     private BidResult resolveCompetition(User triggerUser, double triggerAmount, boolean wasAutoReg) {
@@ -263,7 +272,7 @@ public class Product {
 
     public static class BidResult {
         public final boolean isSuccess;
-        public final String  message;
+        public String  message;
         private BidResult(boolean s, String m) { isSuccess = s; message = m; }
         public static BidResult success(String m) { return new BidResult(true,  m); }
         public static BidResult failure(String m) { return new BidResult(false, m); }

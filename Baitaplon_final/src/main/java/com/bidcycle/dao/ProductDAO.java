@@ -98,8 +98,8 @@ public class ProductDAO {
     }
 
     public static boolean updateHighestBid(Product p) {
-        // Cập nhật giá và người dẫn đầu trong bảng products
-        String sqlProduct = "UPDATE products SET cur_price = ?, highest_bidder_id = ? WHERE id = ?";
+        // Cập nhật giá, người dẫn đầu và thời gian kết thúc (phòng trường hợp gia hạn)
+        String sqlProduct = "UPDATE products SET cur_price = ?, highest_bidder_id = ?, end_time = ? WHERE id = ?";
         
         try (Connection conn = DatabaseConnection.getConnection()) {
             conn.setAutoCommit(false);
@@ -112,7 +112,8 @@ public class ProductDAO {
                     } else {
                         pstmt.setNull(2, Types.INTEGER);
                     }
-                    pstmt.setInt(3, p.getProductId());
+                    pstmt.setTimestamp(3, Timestamp.valueOf(p.getEndTime()));
+                    pstmt.setInt(4, p.getProductId());
                     pstmt.executeUpdate();
                 }
 
