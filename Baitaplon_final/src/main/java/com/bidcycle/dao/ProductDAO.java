@@ -100,4 +100,17 @@ public class ProductDAO {
             return false;
         }
     }
+
+    public static boolean updateProductFinished(int productId, boolean isFinished) {
+        String sql = "UPDATE products SET is_finished = ? WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setBoolean(1, isFinished);
+            pstmt.setInt(2, productId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

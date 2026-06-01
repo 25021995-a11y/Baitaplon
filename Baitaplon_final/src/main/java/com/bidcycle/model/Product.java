@@ -110,6 +110,9 @@ public class Product {
         if (isFinished) return;
         if (LocalDateTime.now().isAfter(endTime)) {
             isFinished = true;
+            // Cập nhật trạng thái kết thúc vào DB
+            com.bidcycle.dao.ProductDAO.updateProductFinished(this.productId, true);
+
             if (highestBidder != null) {
                 highestBidder.settlePayment(this);
                 highestBidder.addProductToInventory(this);
