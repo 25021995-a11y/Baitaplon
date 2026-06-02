@@ -1,7 +1,10 @@
 package com.bidcycle.controller;
 
+import com.bidcycle.model.BidEvent;
+import com.bidcycle.model.BidObserver;
 import com.bidcycle.model.Product;
 import com.bidcycle.model.User;
+import javafx.application.Platform;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -21,7 +24,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProductDetailController {
+public class ProductDetailController implements BidObserver {
 
     @FXML private Label     lblProductName;
     @FXML private Label     lblSeller;
@@ -49,12 +52,31 @@ public class ProductDetailController {
     private double startPrice = 0;
 
     public void setProduct(Product p) {
+        if (updateTimeline != null) {
+            updateTimeline.stop();
+        }
+        if (this.product != null) {
+            this.product.removeBidObserver(this);
+        }
         this.product = p;
+        this.product.addBidObserver(this);
         this.startPrice = p.getStartPrice();
         loadProductData();
         // Seed the chart with current price as starting point
         addBidPoint(p.getPrice());
+        lastTrackedPrice = p.getPrice();
         startLiveUpdate();
+    }
+
+    @Override
+    public void onNewBid(BidEvent event) {
+        if (product == null || event.getProduct() != product) return;
+        Platform.runLater(() -> {
+            addBidPoint(event.getAmount());
+            lastTrackedPrice = event.getAmount();
+            loadProductData();
+            drawBidHistoryChart();
+        });
     }
 
     private void loadProductData() {
@@ -255,8 +277,13 @@ public class ProductDetailController {
 
     @FXML
     protected void onClose() {
-        if (updateTimeline != null) updateTimeline.stop();
+        dispose();
         Stage stage = (Stage) lblProductName.getScene().getWindow();
         stage.close();
+    }
+
+    public void dispose() {
+        if (updateTimeline != null) updateTimeline.stop();
+        if (product != null) product.removeBidObserver(this);
     }
 }
