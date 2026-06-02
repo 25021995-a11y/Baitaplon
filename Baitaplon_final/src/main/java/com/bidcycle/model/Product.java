@@ -1,7 +1,13 @@
 package com.bidcycle.model;
 
+import com.bidcycle.exception.AuctionClosedException;
+import com.bidcycle.exception.AuthenticationException;
+import com.bidcycle.exception.InvalidBidException;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * MODEL: Sản phẩm đấu giá.
@@ -28,6 +34,7 @@ public class Product {
     private String imagePath;
     private String category;
     private int searchCount = 0;
+    private final List<BidObserver> bidObservers = new CopyOnWriteArrayList<>();
 
     // Auto-bid state
     private User   autoBidHolder    = null;
@@ -92,6 +99,25 @@ public class Product {
     public int    getSearchCount()            { return searchCount; }
     public void   incrementSearchCount()      { this.searchCount++; }
 
+    // ── Observer cho sự kiện bid mới ─────────────────────────
+
+    public void addBidObserver(BidObserver observer) {
+        if (observer != null && !bidObservers.contains(observer)) {
+            bidObservers.add(observer);
+        }
+    }
+
+    public void removeBidObserver(BidObserver observer) {
+        bidObservers.remove(observer);
+    }
+
+    private void notifyNewBid(User bidder, double amount, boolean autoBid) {
+        BidEvent event = new BidEvent(this, bidder, amount, autoBid);
+        for (BidObserver observer : bidObservers) {
+            observer.onNewBid(event);
+        }
+    }
+
     // ── Thời gian ─────────────────────────────────────────────
 
     public String getTimeDisplay() {
@@ -124,19 +150,29 @@ public class Product {
      */
     public synchronized BidResult processBid(User newBidder, double amount,
                                               boolean isAutoBid, double userStep) {
-        if (isFinished) return BidResult.failure("Phiên đấu giá đã kết thúc!");
+        if (newBidder == null) {
+            throw AuthenticationException.unauthorized();
+        }
+
+        checkAndProcessEnd();
+        if (isFinished) {
+            throw AuctionClosedException.sessionEnded();
+        }
 
         // Không được đấu giá sản phẩm của chính mình
         if (owner != null && owner.getUserId() == newBidder.getUserId()) {
-            return BidResult.failure("Bạn không thể đấu giá sản phẩm của chính mình!");
+            throw AuthenticationException.selfBid();
         }
 
-        if (amount <= curPrice)
-            return BidResult.failure("Giá phải cao hơn giá hiện tại ($"
-                + String.format("%.2f", curPrice) + ")!");
-        if (!newBidder.canAfford(amount))
-            return BidResult.failure(
-                "Số dư khả dụng không đủ! Hiện có: $" + String.format("%.2f", newBidder.getVirMoney()));
+        if (amount <= 0) {
+            throw InvalidBidException.invalidAmount(amount);
+        }
+        if (amount <= curPrice) {
+            throw InvalidBidException.priceTooLow(curPrice, amount);
+        }
+        if (!newBidder.canAfford(amount)) {
+            throw InvalidBidException.insufficientFunds(newBidder.getVirMoney(), amount);
+        }
 
         newBidder.recordBid(this.name, amount);
 
@@ -160,6 +196,7 @@ public class Product {
                 curPrice = autoCounter;
                 highestBidder.lockVirMoney(autoCounter);
                 lockedAmountPrev = autoCounter;
+                notifyNewBid(highestBidder, autoCounter, true);
                 return BidResult.failure("Auto-Bid tự động phản công! Giá hiện tại: $"
                     + String.format("%.2f", curPrice));
             } else if (amount == autoBidMax) {
@@ -188,12 +225,14 @@ public class Product {
             autoBidHolder = newBidder;
             autoBidMax    = amount;
             autoBidStep   = step > 0 ? step : 1;
+            notifyNewBid(newBidder, amount, true);
             return BidResult.success("✅ Auto-Bid đã kích hoạt! Bạn đang dẫn đầu với $"
                 + String.format("%.2f", curPrice));
         } else {
             autoBidHolder = null;
             autoBidMax    = 0;
             autoBidStep   = 0;
+            notifyNewBid(newBidder, amount, false);
             return BidResult.success("✅ Đặt giá thành công! Bạn đang dẫn đầu với $"
                 + String.format("%.2f", curPrice));
         }
