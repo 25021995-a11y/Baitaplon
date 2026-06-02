@@ -1,6 +1,8 @@
 package com.bidcycle.controller;
 
 import com.bidcycle.dao.ProductDAO;
+import com.bidcycle.exception.AuthenticationException;
+import com.bidcycle.exception.BidCycleException;
 import com.bidcycle.model.*;
 import com.bidcycle.util.ViewNavigator;
 import javafx.animation.Animation;
@@ -173,7 +175,10 @@ public class BidderHomeController {
     @FXML
     protected void onBidButtonClick(ActionEvent event) {
         User user = UserSession.getCurrentUser();
-        if (user == null) { showStatus("Vui lòng đăng nhập!", Color.RED); return; }
+        if (user == null) {
+            showStatus(AuthenticationException.unauthorized().getMessage(), Color.RED);
+            return;
+        }
 
         Product selected = auctionTable.getSelectionModel().getSelectedItem();
         if (selected == null)       { showStatus("Vui lòng chọn một sản phẩm!", Color.ORANGE); return; }
@@ -219,6 +224,8 @@ public class BidderHomeController {
             txtStepPrice.clear();
             applyFilters();
 
+        } catch (BidCycleException ex) {
+            showStatus(ex.getMessage(), Color.RED);
         } catch (NumberFormatException ex) {
             showStatus("Số tiền không hợp lệ!", Color.RED);
         }
@@ -266,6 +273,7 @@ public class BidderHomeController {
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setTitle("Chi tiết: " + product.getName());
             stage.setScene(new Scene(root));
+            stage.setOnCloseRequest(e -> ctrl.dispose());
             stage.show();
         } catch (IOException e) { e.printStackTrace(); }
     }

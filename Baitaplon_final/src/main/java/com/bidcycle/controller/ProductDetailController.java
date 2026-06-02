@@ -3,6 +3,7 @@ package com.bidcycle.controller;
 import com.bidcycle.dao.ProductDAO;
 import com.bidcycle.model.Product;
 import com.bidcycle.model.User;
+import javafx.application.Platform;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ProductDetailController {
+public class ProductDetailController implements BidObserver {
 
     @FXML private Label     lblProductName;
     @FXML private Label     lblSeller;
@@ -60,7 +61,14 @@ public class ProductDetailController {
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 
     public void setProduct(Product p) {
+        if (updateTimeline != null) {
+            updateTimeline.stop();
+        }
+        if (this.product != null) {
+            this.product.removeBidObserver(this);
+        }
         this.product = p;
+        this.product.addBidObserver(this);
         this.startPrice = p.getStartPrice();
         
         // Initialize Chart
@@ -252,8 +260,13 @@ public class ProductDetailController {
 
     @FXML
     protected void onClose() {
-        if (updateTimeline != null) updateTimeline.stop();
+        dispose();
         Stage stage = (Stage) lblProductName.getScene().getWindow();
         stage.close();
+    }
+
+    public void dispose() {
+        if (updateTimeline != null) updateTimeline.stop();
+        if (product != null) product.removeBidObserver(this);
     }
 }

@@ -193,11 +193,13 @@ public class SellerController {
         try {
             FXMLLoader loader = ViewNavigator.createLoader(ViewNavigator.PRODUCT_DETAIL);
             Parent root = loader.load();
-            ((ProductDetailController) loader.getController()).setProduct(product);
+            ProductDetailController ctrl = loader.getController();
+            ctrl.setProduct(product);
             Stage s = new Stage();
             s.initModality(Modality.APPLICATION_MODAL);
             s.setTitle("Chi tiết: " + product.getName());
             s.setScene(new Scene(root));
+            s.setOnCloseRequest(e -> ctrl.dispose());
             s.show();
         } catch (IOException e) { e.printStackTrace(); }
     }
