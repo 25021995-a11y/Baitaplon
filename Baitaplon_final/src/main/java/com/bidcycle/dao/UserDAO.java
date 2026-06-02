@@ -23,6 +23,26 @@ public class UserDAO {
     }
 
     /**
+     * Khởi tạo Admin mặc định nếu chưa có tài khoản Admin nào.
+     */
+    public static void ensureAdminExists() {
+        String checkAdminSql = "SELECT COUNT(*) FROM users WHERE role = 'ADMIN'";
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(checkAdminSql)) {
+            
+            if (rs.next() && rs.getInt(1) == 0) {
+                String insertAdminSql = "INSERT INTO users (username, password, is_active, role, money, vir_money, created_date) " +
+                                       "VALUES ('admin', 'Admin@123', TRUE, 'ADMIN', 0.0, 0.0, CURDATE())";
+                stmt.executeUpdate(insertAdminSql);
+                System.out.println("[INFO] Default admin created: admin / Admin@123");
+            }
+        } catch (SQLException e) {
+            // Có thể bảng chưa có cột role, sẽ được xử lý khi người dùng chạy script DB
+        }
+    }
+
+    /**
      * Xác thực đăng nhập, trả về User nếu hợp lệ.
      */
     public static User checkLogin(String username, String password) {
@@ -116,8 +136,14 @@ public class UserDAO {
         String email  = safeGetString(rs, "email",  "");
         String gender = safeGetString(rs, "gender", "Khác");
         LocalDate created = safeGetDate(rs, "created_date");
+        String role = safeGetString(rs, "role", "BIDDER");
 
-        User user = new User(id, username, password, isAct, email, gender, created);
+        User user;
+        if ("ADMIN".equalsIgnoreCase(role) || "ADMINISTRATOR".equalsIgnoreCase(role)) {
+            user = new com.bidcycle.model.Admin(id, username, password, isAct, email, gender, created);
+        } else {
+            user = new User(id, username, password, isAct, email, gender, created);
+        }
         user.setMoney(money);
         user.setVirMoney(virMon);
         return user;
@@ -142,9 +168,9 @@ public class UserDAO {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     return mapResultSetToUser(
-                            rs.getStatement().getResultSet(),
+                            rs,
                             rs.getString("username"),
-                            rs.getString("role")
+                            rs.getString("password")
                     );
                 }
             } // Đóng try-with-resources của ResultSet

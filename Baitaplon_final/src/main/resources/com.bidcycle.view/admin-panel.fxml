@@ -78,6 +78,17 @@
                             <Label text="Finished Auctions" style="-fx-text-fill: #9d4edd; -fx-font-size: 11;"/>
                             <Label fx:id="lblFinishedAuctions" text="0" style="-fx-text-fill: #00e5b0; -fx-font-size: 24; -fx-font-weight: bold;"/>
                         </VBox>
+
+                        <!-- Revenue Stats -->
+                        <VBox spacing="8" style="-fx-border-color: #5a2d9a; -fx-border-width: 1; -fx-padding: 15; -fx-border-radius: 8;" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                            <Label text="Total Revenue" style="-fx-text-fill: #9d4edd; -fx-font-size: 11;"/>
+                            <Label fx:id="lblTotalRevenue" text="0.00" style="-fx-text-fill: #ffd700; -fx-font-size: 24; -fx-font-weight: bold;"/>
+                        </VBox>
+
+                        <VBox spacing="8" style="-fx-border-color: #5a2d9a; -fx-border-width: 1; -fx-padding: 15; -fx-border-radius: 8;" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                            <Label text="Fee Revenue" style="-fx-text-fill: #9d4edd; -fx-font-size: 11;"/>
+                            <Label fx:id="lblFeeRevenue" text="0.00" style="-fx-text-fill: #ffd700; -fx-font-size: 24; -fx-font-weight: bold;"/>
+                        </VBox>
                     </GridPane>
                 </VBox>
             </Tab>
@@ -109,6 +120,9 @@
 
                         <Button fx:id="btnBanUser" text="✗ Ban User" onAction="#onBanUser"
                                 style="-fx-font-size: 12; -fx-padding: 8 15; -fx-background-color: #d62828; -fx-text-fill: #ffffff; -fx-font-weight: bold;"/>
+                        
+                        <Button fx:id="btnSetAdmin" text="👑 Make Admin" onAction="#onSetAdmin"
+                                style="-fx-font-size: 12; -fx-padding: 8 15; -fx-background-color: #ffd700; -fx-text-fill: #000000; -fx-font-weight: bold;"/>
                     </HBox>
                 </VBox>
             </Tab>

@@ -184,21 +184,41 @@ public class AccountController {
             gc.fillText(String.format("$%.0f", minP + (maxP - minP) * i / 5.0), 2, y + 4);
         }
 
-        double[] xs = new double[n + 2], ys = new double[n + 2];
+        double[] xs = new double[n], ys = new double[n];
         for (int i = 0; i < n; i++) {
             xs[i] = padL + (n == 1 ? chartW / 2 : chartW * i / (n - 1));
             ys[i] = padT + chartH - ((history.get(i).getPrice() - minP) / (maxP - minP)) * chartH;
             gc.setFill(Color.valueOf("#5a3d7a"));
             gc.fillText(String.valueOf(i + 1), xs[i] - 3, H - 6);
         }
-        xs[n] = xs[n-1]; ys[n] = padT + chartH;
-        xs[n+1] = xs[0]; ys[n+1] = padT + chartH;
 
-        gc.setFill(Color.valueOf("#9d4edd33")); gc.fillPolygon(xs, ys, n + 2);
+        // Vẽ biểu đồ dạng đường gấp khúc (Step Chart)
         gc.setStroke(Color.valueOf("#c77dff")); gc.setLineWidth(2.5);
         gc.beginPath();
-        for (int i = 0; i < n; i++) { if (i==0) gc.moveTo(xs[i],ys[i]); else gc.lineTo(xs[i],ys[i]); }
+        for (int i = 0; i < n; i++) {
+            if (i == 0) {
+                gc.moveTo(xs[i], ys[i]);
+            } else {
+                // Tạo đường gấp khúc (Step): đi ngang từ x cũ đến x mới ở y cũ, sau đó đi dọc lên y mới
+                gc.lineTo(xs[i], ys[i - 1]);
+                gc.lineTo(xs[i], ys[i]);
+            }
+        }
         gc.stroke();
+
+        // Vẽ vùng gradient phía dưới đường gấp khúc
+        double[] stepXs = new double[2 * n + 2];
+        double[] stepYs = new double[2 * n + 2];
+        stepXs[0] = xs[0]; stepYs[0] = ys[0];
+        int k = 1;
+        for (int i = 1; i < n; i++) {
+            stepXs[k] = xs[i]; stepYs[k] = ys[i-1]; k++;
+            stepXs[k] = xs[i]; stepYs[k] = ys[i]; k++;
+        }
+        stepXs[k] = xs[n-1]; stepYs[k] = padT + chartH; k++;
+        stepXs[k] = xs[0]; stepYs[k] = padT + chartH; k++;
+        gc.setFill(Color.valueOf("#9d4edd33"));
+        gc.fillPolygon(stepXs, stepYs, k);
         for (int i = 0; i < n; i++) {
             gc.setFill(Color.valueOf("#9d4edd55")); gc.fillOval(xs[i]-7, ys[i]-7, 14, 14);
             gc.setFill(Color.valueOf("#c77dff"));   gc.fillOval(xs[i]-4, ys[i]-4, 8, 8);

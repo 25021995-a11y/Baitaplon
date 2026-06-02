@@ -79,15 +79,15 @@ public class Product {
         this.imagePath   = imagePath   != null ? imagePath   : "";
         this.category    = category    != null ? category    : "Khác";
     }
-    public Product(int productId, String name, double curPrice,
-                   LocalDateTime startTime, LocalDateTime endTime,User owner) {
-        this.startPrice=curPrice;
+    public Product(int productId, String name, double startPrice, double curPrice,
+                   LocalDateTime startTime, LocalDateTime endTime, User owner) {
         this.productId = productId;
         this.name = name;
+        this.startPrice = startPrice;
         this.curPrice = curPrice;
         this.startTime = startTime; // Gán thẳng giá trị lấy từ DB, không gọi .now()
         this.endTime = endTime;     // Gán thẳng giá trị lấy từ DB
-        this.owner=owner;
+        this.owner = owner;
     }
 
     public Product(int productId, String name, double price, int durationInMinutes, User owner) {
@@ -139,6 +139,9 @@ public class Product {
             com.bidcycle.dao.ProductDAO.updateProductFinished(this.productId, true);
 
             if (highestBidder != null) {
+                // Giải phóng tiền ảo trước khi thực hiện thanh toán thật để tránh lệch số dư
+                highestBidder.unlockVirMoney(lockedAmountPrev);
+                
                 highestBidder.settlePayment(this);
                 highestBidder.addProductToInventory(this);
             }
@@ -208,9 +211,6 @@ public class Product {
             message = "✅ Bạn đang dẫn đầu!";
         } else if (!wasAutoReg && triggerAmount > curPrice) {
             // Bid thủ công vượt giá hiện tại
-            if (highestBidder.getUserId() != triggerUser.getUserId()) {
-                highestBidder.unlockVirMoney(lockedAmountPrev);
-            }
             setNewLeader(triggerUser, triggerAmount);
             message = "✅ Bạn đang dẫn đầu!";
         }
@@ -236,17 +236,11 @@ public class Product {
                 
                 if (nextBid <= config.getMaxBid()) {
                     // Đối thủ có thể nâng giá
-                    if (highestBidder != null) {
-                        highestBidder.unlockVirMoney(lockedAmountPrev);
-                    }
                     setNewLeader(opponent, nextBid);
                     changed = true;
                     message = "Auto-Bid phản công! " + opponent.getUsername() + " đang dẫn đầu với $" + String.format("%.2f", curPrice);
                 } else if (curPrice < config.getMaxBid()) {
                     // Đối thủ không thể cộng thêm bước giá nhưng có thể lên tới maxBid
-                    if (highestBidder != null) {
-                        highestBidder.unlockVirMoney(lockedAmountPrev);
-                    }
                     setNewLeader(opponent, config.getMaxBid());
                     changed = true;
                     message = "Auto-Bid phản công! " + opponent.getUsername() + " đang dẫn đầu với $" + String.format("%.2f", curPrice);
@@ -262,7 +256,14 @@ public class Product {
     }
 
     private void setNewLeader(User newBidder, double amount) {
+        // Nếu đã có người dẫn đầu trước đó, hoàn lại số tiền đã khóa của họ
+        if (highestBidder != null) {
+            highestBidder.unlockVirMoney(lockedAmountPrev);
+        }
+
+        // Khóa số tiền mới của người dẫn đầu mới
         newBidder.lockVirMoney(amount);
+
         lockedAmountPrev = amount;
         curPrice      = amount;
         highestBidder = newBidder;

@@ -115,6 +115,9 @@ public class User {
     public synchronized void settlePayment(Product p) {
         double price = p.getPrice();
         this.money = Math.max(0, this.money - price);
+        // Sau khi thanh toán, số dư khả dụng phải khớp với số dư thực (vì tiền đã bị trừ xong)
+        this.virMoney = this.money;
+        
         // Lưu thay đổi của người mua vào DB
         com.bidcycle.dao.UserDAO.updateUserMoney(this.username, this.money, this.virMoney);
 

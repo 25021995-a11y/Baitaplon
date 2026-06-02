@@ -160,8 +160,17 @@ public class SellerController {
         } catch (NumberFormatException e) {
             showStatus("⚠ Giá và Thời gian phải là số!", Color.RED); return;
         }
+        String category = "Khác";
+        if (txtCategory != null && txtCategory.getValue() != null) {
+            category = txtCategory.getValue().toString();
+        }
+        String description = "";
+        if (txtDescription != null) {
+            description = txtDescription.getText().trim();
+        }
+
         // Lưu sản phẩm vào database, dùng userId thay vì roleName
-        boolean isSuccess = ProductDAO.insertProduct(name, price, minutes, user.getUserId());
+        boolean isSuccess = ProductDAO.insertProduct(name, price, minutes, user.getUserId(), category, description, selectedImagePath);
         if (!isSuccess) {
             showStatus("⚠ Đăng bán thất bại! Kiểm tra kết nối database.", Color.RED);
             return;

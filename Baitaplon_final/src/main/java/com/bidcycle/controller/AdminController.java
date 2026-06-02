@@ -56,6 +56,7 @@ public class AdminController {
     @FXML private TableColumn<User, Double> colBalance;
     @FXML private Button btnApproveUser;
     @FXML private Button btnBanUser;
+    @FXML private Button btnSetAdmin;
     @FXML private TextField txtBanReason;
 
     // ── Items Management ───────────────────────────────────────
@@ -122,18 +123,22 @@ public class AdminController {
     private void refreshDashboard() {
         Map<String, Object> report = AdminDAO.generateReport();
 
-        lblTotalUsers.setText(String.valueOf(report.get("totalUsers")));
-        lblActiveUsers.setText(String.valueOf(report.get("activeUsers")));
-        lblBannedUsers.setText(String.valueOf(report.get("bannedUsers")));
-        lblTotalProducts.setText(String.valueOf(report.get("totalProducts")));
-        lblOngoingAuctions.setText(String.valueOf(report.get("ongoingProducts")));
-        lblFinishedAuctions.setText(String.valueOf(report.get("finishedProducts")));
+        if (lblTotalUsers != null) lblTotalUsers.setText(String.valueOf(report.get("totalUsers")));
+        if (lblActiveUsers != null) lblActiveUsers.setText(String.valueOf(report.get("activeUsers")));
+        if (lblBannedUsers != null) lblBannedUsers.setText(String.valueOf(report.get("bannedUsers")));
+        if (lblTotalProducts != null) lblTotalProducts.setText(String.valueOf(report.get("totalProducts")));
+        if (lblOngoingAuctions != null) lblOngoingAuctions.setText(String.valueOf(report.get("ongoingProducts")));
+        if (lblFinishedAuctions != null) lblFinishedAuctions.setText(String.valueOf(report.get("finishedProducts")));
 
-        double totalRev = (Double) report.get("totalTransactionValue");
-        lblTotalRevenue.setText(String.format("$%.2f", totalRev));
+        double totalRev = 0.0;
+        Object trv = report.get("totalTransactionValue");
+        if (trv instanceof Number) totalRev = ((Number) trv).doubleValue();
+        if (lblTotalRevenue != null) lblTotalRevenue.setText(String.format("$%.2f", totalRev));
 
-        double feeRev = (Double) report.get("feeRevenue");
-        lblFeeRevenue.setText(String.format("$%.2f", feeRev));
+        double feeRev = 0.0;
+        Object fr = report.get("feeRevenue");
+        if (fr instanceof Number) feeRev = ((Number) fr).doubleValue();
+        if (lblFeeRevenue != null) lblFeeRevenue.setText(String.format("$%.2f", feeRev));
     }
 
     // ════════════════════════════════════════════════════════════════════
@@ -211,6 +216,35 @@ public class AdminController {
             refreshDashboard();
         } else {
             showAlert("Lỗi", "Không thể cấm tài khoản!");
+        }
+    }
+
+    @FXML
+    private void onSetAdmin(ActionEvent event) {
+        User selected = usersTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("Thông báo", "Chọn người dùng để cấp quyền Admin!");
+            return;
+        }
+
+        if (selected.getRoleName().equals("Admin")) {
+            showAlert("Thông báo", "Người dùng này đã là Admin!");
+            return;
+        }
+
+        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+        confirm.setTitle("Xác nhận");
+        confirm.setHeaderText("Cấp quyền Quản trị viên");
+        confirm.setContentText("Bạn có chắc chắn muốn cấp quyền Admin cho '" + selected.getUsername() + "'?");
+        
+        Optional<ButtonType> result = confirm.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            if (AdminDAO.updateUserRole(selected.getUserId(), "ADMIN")) {
+                showAlert("Thành công", "Đã cấp quyền Admin cho " + selected.getUsername());
+                refreshUsersList();
+            } else {
+                showAlert("Lỗi", "Không thể cập nhật quyền hạn!");
+            }
         }
     }
 

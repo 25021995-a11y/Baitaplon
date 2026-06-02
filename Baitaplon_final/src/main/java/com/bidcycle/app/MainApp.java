@@ -17,6 +17,10 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        // Đảm bảo các bảng và Admin mặc định tồn tại
+        com.bidcycle.dao.AdminDAO.ensureSystemConfigTableExists();
+        com.bidcycle.dao.UserDAO.ensureAdminExists();
+
         FXMLLoader loader = ViewNavigator.createLoader(ViewNavigator.LOGIN);
         Scene scene = new Scene(loader.load());
 

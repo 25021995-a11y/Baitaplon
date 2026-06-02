@@ -18,18 +18,38 @@ public class DatabaseConnection {
     private static final String DB_USER  = "root";
     private static final String PASSWORD = "200807";
 
-    private DatabaseConnection() {}
+    // 1. Biến static duy nhất giữ instance của class
+    private static DatabaseConnection instance;
 
-    /**
-     * Mở và trả về một Connection mới.
-     * Caller chịu trách nhiệm đóng Connection (dùng try-with-resources).
-     */
-    public static Connection getConnection() throws SQLException {
+    // 2. Private constructor để ngăn việc tạo đối tượng từ bên ngoài
+    private DatabaseConnection() {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
-            throw new SQLException("Không tìm thấy MySQL JDBC Driver. Kiểm tra pom.xml.", e);
+            e.printStackTrace();
         }
+    }
+
+    // 3. Phương thức public để lấy instance duy nhất
+    public static synchronized DatabaseConnection getInstance() {
+        if (instance == null) {
+            instance = new DatabaseConnection();
+        }
+        return instance;
+    }
+
+    /**
+     * Phương thức static để giữ tương thích ngược, giúp dự án không bị lỗi biên dịch.
+     * Code cũ gọi DatabaseConnection.getConnection() sẽ đi qua Instance của Singleton.
+     */
+    public static Connection getConnection() throws SQLException {
+        return getInstance().createConnection();
+    }
+
+    /**
+     * Mở và trả về một Connection mới.
+     */
+    private Connection createConnection() throws SQLException {
         return DriverManager.getConnection(URL, DB_USER, PASSWORD);
     }
 }

@@ -12,8 +12,8 @@ public class ProductDAO {
 
     // 1. HÀM LƯU SẢN PHẨM (Dành cho Seller)
     // Nhận sellerId (int) thay vì seller_name để khớp với FK trong DB
-    public static boolean insertProduct(String name, double price, int durationMinutes, int sellerId) {
-        String sql = "INSERT INTO products (name, cur_price, start_time, end_time, seller_id) VALUES (?, ?, ?, ?, ?)";
+    public static boolean insertProduct(String name, double price, int durationMinutes, int sellerId, String category, String description, String imagePath) {
+        String sql = "INSERT INTO products (name, start_price, cur_price, start_time, end_time, seller_id, category, description, image_path, is_approved) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, FALSE)";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -22,9 +22,13 @@ public class ProductDAO {
 
             pstmt.setString(1, name);
             pstmt.setDouble(2, price);
-            pstmt.setTimestamp(3, Timestamp.valueOf(startTime));
-            pstmt.setTimestamp(4, Timestamp.valueOf(endTime));
-            pstmt.setInt(5, sellerId);
+            pstmt.setDouble(3, price);
+            pstmt.setTimestamp(4, Timestamp.valueOf(startTime));
+            pstmt.setTimestamp(5, Timestamp.valueOf(endTime));
+            pstmt.setInt(6, sellerId);
+            pstmt.setString(7, category);
+            pstmt.setString(8, description);
+            pstmt.setString(9, imagePath);
 
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
@@ -46,21 +50,28 @@ public class ProductDAO {
             while (rs.next()) {
                 int    id    = rs.getInt("id");
                 String name  = rs.getString("name");
-                double price = rs.getDouble("cur_price");
+                double startPrice = rs.getDouble("start_price");
+                double curPrice   = rs.getDouble("cur_price");
                 boolean isFinished = rs.getBoolean("is_finished");
                 LocalDateTime startTime = rs.getTimestamp("start_time").toLocalDateTime();
                 LocalDateTime endTime = rs.getTimestamp("end_time").toLocalDateTime();
+                String category = rs.getString("category");
+                String description = rs.getString("description");
+                String imagePath = rs.getString("image_path");
 
                 int  sellerId = rs.getInt("seller_id");
                 User owner    = UserDAO.getUserById(sellerId);
 
-                Product p = new Product(id, name, price, startTime, endTime, owner);
+                Product p = new Product(id, name, startPrice, curPrice, startTime, endTime, owner);
+                p.setCategory(category);
+                p.setDescription(description);
+                p.setImagePath(imagePath);
 
                 int highestBidderId = rs.getInt("highest_bidder_id");
                 if (!rs.wasNull()) {
                     User highestBidder = UserDAO.getUserById(highestBidderId);
                     p.setHighestBidder(highestBidder);
-                    p.setLockedAmountPrev(price); 
+                    p.setLockedAmountPrev(curPrice); 
                 }
 
                 p.setFinished(isFinished);
@@ -159,5 +170,36 @@ public class ProductDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    // ── Bid History ──────────────────────────────────────────
+
+    public static void recordBidHistory(int productId, double price) {
+        String sql = "INSERT INTO bid_history (product_id, price) VALUES (?, ?)";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, productId);
+            pstmt.setDouble(2, price);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<double[]> getBidHistory(int productId) {
+        List<double[]> history = new ArrayList<>();
+        String sql = "SELECT price, UNIX_TIMESTAMP(bid_time) as ts FROM bid_history WHERE product_id = ? ORDER BY bid_time ASC";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, productId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    history.add(new double[]{rs.getDouble("ts") * 1000, rs.getDouble("price")});
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return history;
     }
 }

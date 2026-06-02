@@ -26,6 +26,7 @@ public class ViewNavigator {
     public static final String INVENTORY    = "inventory.fxml";
     public static final String PRODUCT_DETAIL = "product-detail.fxml";
     public static final String DASHBOARD    = "dashboard.fxml";
+    public static final String ADMIN_PANEL  = "admin-panel.fxml";
 
     private static final String BASE_PATH = "/com.bidcycle.view/";
 

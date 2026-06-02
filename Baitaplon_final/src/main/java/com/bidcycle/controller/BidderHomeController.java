@@ -206,7 +206,10 @@ public class BidderHomeController {
             Product.BidResult result = selected.processBid(user, bidPrice, autoBid, stepPrice);
             
             // Cập nhật Database
-            ProductDAO.updateHighestBid(selected);
+            if (result.isSuccess) {
+                ProductDAO.updateHighestBid(selected);
+                ProductDAO.recordBidHistory(selected.getProductId(), selected.getPrice());
+            }
             
             // Cập nhật ví ngay lập tức cho UI
             updateWallet();
