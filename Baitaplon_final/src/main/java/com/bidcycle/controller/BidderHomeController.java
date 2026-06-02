@@ -203,17 +203,25 @@ public class BidderHomeController {
                     showStatus("Nhập bước giá cho Auto-Bid!", Color.RED); return;
                 }
                 stepPrice = Double.parseDouble(stepText.trim());
+                if (stepPrice <= 0) {
+                    showStatus("Bước giá phải > 0!", Color.RED); return;
+                }
             }
 
             Product.BidResult result = selected.processBid(user, bidPrice, autoBid, stepPrice);
+            
+            // Cập nhật Database
             if (result.isSuccess) {
-                // Lấy ID sản phẩm, ID người đặt, và Giá hiện tại vừa được processBid cập nhật
-                ProductDAO.updateHighestBid(selected.getProductId(), user.getUserId(), selected.getPrice());
+                ProductDAO.updateHighestBid(selected);
+                ProductDAO.recordBidHistory(selected.getProductId(), selected.getPrice());
             }
+            
+            // Cập nhật ví ngay lập tức cho UI
+            updateWallet();
+            
             showStatus(result.message, result.isSuccess ? Color.valueOf("#00e676") : Color.RED);
             bidInput.clear();
             txtStepPrice.clear();
-            updateWallet();
             applyFilters();
 
         } catch (BidCycleException ex) {

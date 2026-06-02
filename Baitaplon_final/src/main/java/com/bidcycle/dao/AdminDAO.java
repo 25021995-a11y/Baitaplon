@@ -5,6 +5,7 @@ import com.bidcycle.model.Product;
 import com.bidcycle.model.User;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -101,6 +102,20 @@ public class AdminDAO {
         return users;
     }
 
+    /**
+     * Cập nhật quyền hạn cho người dùng.
+     */
+    public static boolean updateUserRole(int userId, String role) {
+        String sql = "UPDATE users SET role = ? WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, role);
+            pstmt.setInt(2, userId);
+            return pstmt.executeUpdate() > 0;
+        } catch (SQLException e) { e.printStackTrace(); }
+        return false;
+    }
+
     // ────────────────────────────────────────────────────────────
     // ✓ KIỂM DUYỆT VẬT PHẨM — Item Review
     // ────────────────────────────────────────────────────────────
@@ -150,7 +165,7 @@ public class AdminDAO {
     public static List<Map<String, Object>> getPendingItems() {
         List<Map<String, Object>> items = new ArrayList<>();
         String sql = "SELECT p.*, u.username as owner_name FROM products p " +
-                    "LEFT JOIN users u ON p.owner_id = u.id " +
+                    "LEFT JOIN users u ON p.seller_id = u.id " +
                     "WHERE (p.is_approved IS NULL OR p.is_approved = FALSE) " +
                     "AND p.is_finished = FALSE " +
                     "ORDER BY p.start_time DESC";
@@ -177,6 +192,122 @@ public class AdminDAO {
     // ✓ CẤU HÌNH & THỐ NG KÊ — Configuration & Reports
     // ────────────────────────────────────────────────────────────
 
+    public static void ensureSystemConfigTableExists() {
+        String sqlConfig = "CREATE TABLE IF NOT EXISTS system_config (" +
+                     "param_key VARCHAR(50) PRIMARY KEY, " +
+                     "param_value DOUBLE NOT NULL" +
+                     ")";
+        String sqlLogs = "CREATE TABLE IF NOT EXISTS admin_logs (" +
+                         "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                         "user_id INT, " +
+                         "action VARCHAR(50), " +
+                         "reason TEXT, " +
+                         "timestamp DATETIME" +
+                         ")";
+        String sqlUsers = "CREATE TABLE IF NOT EXISTS users (" +
+                          "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                          "username VARCHAR(50) UNIQUE NOT NULL, " +
+                          "password VARCHAR(100) NOT NULL, " +
+                          "is_active BOOLEAN DEFAULT TRUE, " +
+                          "role VARCHAR(20) DEFAULT 'BIDDER', " +
+                          "money DOUBLE DEFAULT 0.0, " +
+                          "vir_money DOUBLE DEFAULT 0.0, " +
+                          "email VARCHAR(255) DEFAULT '', " +
+                          "gender VARCHAR(10) DEFAULT 'Khác', " +
+                          "created_date DATE DEFAULT (CURDATE())" +
+                          ")";
+        String sqlProducts = "CREATE TABLE IF NOT EXISTS products (" +
+                             "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                             "name VARCHAR(255) NOT NULL, " +
+                             "start_price DOUBLE NOT NULL, " +
+                             "cur_price DOUBLE NOT NULL, " +
+                             "start_time DATETIME, " +
+                             "end_time DATETIME, " +
+                             "seller_id INT, " +
+                             "highest_bidder_id INT, " +
+                             "category VARCHAR(100) DEFAULT 'Khác', " +
+                             "description TEXT, " +
+                             "image_path VARCHAR(500), " +
+                             "is_approved BOOLEAN DEFAULT FALSE, " +
+                             "is_finished BOOLEAN DEFAULT FALSE, " +
+                             "reject_reason TEXT, " +
+                             "FOREIGN KEY (seller_id) REFERENCES users(id), " +
+                             "FOREIGN KEY (highest_bidder_id) REFERENCES users(id)" +
+                             ")";
+        String sqlAutoBids = "CREATE TABLE IF NOT EXISTS auto_bids (" +
+                             "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                             "product_id INT NOT NULL, " +
+                             "user_id INT NOT NULL, " +
+                             "max_bid DOUBLE NOT NULL, " +
+                             "increment DOUBLE NOT NULL, " +
+                             "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                             "UNIQUE KEY unique_product_user (product_id, user_id), " +
+                             "FOREIGN KEY (product_id) REFERENCES products(id), " +
+                             "FOREIGN KEY (user_id) REFERENCES users(id)" +
+                             ")";
+        String sqlBidHistory = "CREATE TABLE IF NOT EXISTS bid_history (" +
+                               "id INT AUTO_INCREMENT PRIMARY KEY, " +
+                               "product_id INT NOT NULL, " +
+                               "price DOUBLE NOT NULL, " +
+                               "bid_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                               "FOREIGN KEY (product_id) REFERENCES products(id)" +
+                               ")";
+
+        try (Connection conn = DatabaseConnection.getConnection();
+             Statement stmt = conn.createStatement()) {
+            
+            // Tạo các bảng theo thứ tự để tránh lỗi FK
+            stmt.executeUpdate(sqlConfig);
+            stmt.executeUpdate(sqlLogs);
+            stmt.executeUpdate(sqlUsers);
+            stmt.executeUpdate(sqlProducts);
+            stmt.executeUpdate(sqlAutoBids);
+            stmt.executeUpdate(sqlBidHistory);
+
+            // Cập nhật cấu trúc bảng users nếu cần (Migration)
+            try {
+                stmt.executeUpdate("ALTER TABLE users ADD COLUMN IF NOT EXISTS email VARCHAR(255) DEFAULT ''");
+                stmt.executeUpdate("ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR(10) DEFAULT 'Khác'");
+                stmt.executeUpdate("ALTER TABLE users ADD COLUMN IF NOT EXISTS created_date DATE DEFAULT (CURDATE())");
+                stmt.executeUpdate("ALTER TABLE users ADD COLUMN IF NOT EXISTS vir_money DOUBLE DEFAULT 0.0");
+                // Cập nhật created_date nếu null cho các record cũ
+                stmt.executeUpdate("UPDATE users SET created_date = CURDATE() WHERE created_date IS NULL");
+            } catch (SQLException ignore) {
+                // Một số phiên bản MySQL cũ có thể không hỗ trợ ADD COLUMN IF NOT EXISTS
+                // Chúng ta sẽ thử thêm từng cột một cách thủ công để an toàn hơn
+                String[] cols = {
+                    "ALTER TABLE users ADD email VARCHAR(255) DEFAULT ''",
+                    "ALTER TABLE users ADD gender VARCHAR(10) DEFAULT 'Khác'",
+                    "ALTER TABLE users ADD created_date DATE DEFAULT (CURDATE())",
+                    "ALTER TABLE users ADD vir_money DOUBLE DEFAULT 0.0"
+                };
+                for (String colSql : cols) {
+                    try { stmt.executeUpdate(colSql); } catch (SQLException e2) { /* Column already exists */ }
+                }
+                try { stmt.executeUpdate("UPDATE users SET created_date = CURDATE() WHERE created_date IS NULL"); } catch (SQLException e3) {}
+            }
+
+            // Khởi tạo phí mặc định nếu chưa có
+            String initSql = "INSERT IGNORE INTO system_config (param_key, param_value) VALUES ('TRANSACTION_FEE', 0.02)";
+            stmt.executeUpdate(initSql);
+
+            // Cập nhật cấu trúc bảng products (Migration)
+            String[] productCols = {
+                "ALTER TABLE products ADD category VARCHAR(100) DEFAULT 'Khác'",
+                "ALTER TABLE products ADD description TEXT",
+                "ALTER TABLE products ADD image_path VARCHAR(500)",
+                "ALTER TABLE products ADD is_approved BOOLEAN DEFAULT FALSE",
+                "ALTER TABLE products ADD reject_reason TEXT"
+            };
+            for (String colSql : productCols) {
+                try { stmt.executeUpdate(colSql); } catch (SQLException e2) { /* Column already exists or error */ }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Cài đặt phí giao dịch hệ thống (%).
      */
@@ -197,10 +328,14 @@ public class AdminDAO {
     public static double getTransactionFee() {
         String sql = "SELECT param_value FROM system_config WHERE param_key = 'TRANSACTION_FEE'";
         try (Connection conn = DatabaseConnection.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            if (rs.next()) return rs.getDouble("param_value");
-        } catch (SQLException e) { e.printStackTrace(); }
+             Statement stmt = conn.createStatement()) {
+            try (ResultSet rs = stmt.executeQuery(sql)) {
+                if (rs.next()) return rs.getDouble("param_value");
+            }
+        } catch (SQLException e) {
+            // Table might not exist yet if called before initialization
+            System.err.println("[WARN] system_config table not found, using default fee.");
+        }
         return 0.02; // Default 2%
     }
 
@@ -272,7 +407,7 @@ public class AdminDAO {
     private static List<Map<String, Object>> getTopSellers(Connection conn, int limit) throws SQLException {
         List<Map<String, Object>> sellers = new ArrayList<>();
         String sql = "SELECT u.username, COUNT(p.id) as sold_count, SUM(p.cur_price) as total_revenue " +
-                    "FROM users u LEFT JOIN products p ON u.id = p.owner_id " +
+                    "FROM users u LEFT JOIN products p ON u.id = p.seller_id " +
                     "WHERE p.is_finished = TRUE GROUP BY u.id ORDER BY total_revenue DESC LIMIT ?";
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, limit);
@@ -320,13 +455,32 @@ public class AdminDAO {
         String username = rs.getString("username");
         String password = rs.getString("password");
         boolean isActive = rs.getBoolean("is_active");
-        String email = rs.getString("email");
-        String gender = rs.getString("gender");
+        
+        String email = "";
+        try { email = rs.getString("email"); } catch (SQLException e) { /* Missing */ }
+        
+        String gender = "Khác";
+        try { gender = rs.getString("gender"); } catch (SQLException e) { /* Missing */ }
+        
+        LocalDate created = LocalDate.now();
+        try {
+            java.sql.Date d = rs.getDate("created_date");
+            if (d != null) created = d.toLocalDate();
+        } catch (SQLException e) { /* Missing */ }
 
-        User user = new User(id, username, password, isActive, email, gender,
-                           rs.getDate("created_date").toLocalDate());
-        user.setMoney(rs.getDouble("money"));
-        user.setVirMoney(rs.getDouble("vir_money"));
+        String role = "BIDDER";
+        try { role = rs.getString("role"); } catch (Exception ignored) {}
+
+        User user;
+        if ("ADMIN".equalsIgnoreCase(role) || "ADMINISTRATOR".equalsIgnoreCase(role)) {
+            user = new Admin(id, username, password, isActive, email, gender, created);
+        } else {
+            user = new User(id, username, password, isActive, email, gender, created);
+        }
+        
+        try { user.setMoney(rs.getDouble("money")); } catch (SQLException e) { /* Missing */ }
+        try { user.setVirMoney(rs.getDouble("vir_money")); } catch (SQLException e) { /* Missing */ }
+        
         return user;
     }
 }

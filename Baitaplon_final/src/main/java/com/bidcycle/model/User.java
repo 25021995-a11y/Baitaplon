@@ -78,12 +78,17 @@ public class User {
         if (amount > 0) {
             this.money    += amount;
             this.virMoney += amount;
+            com.bidcycle.dao.UserDAO.updateUserMoney(this.username, this.money, this.virMoney);
         }
     }
 
-    /** Nhận tiền từ giao dịch bán hàng (chỉ cộng money, không ảnh hưởng virMoney). */
+    /** Nhận tiền từ giao dịch bán hàng (cộng cả money và virMoney). */
     public synchronized void receiveMoney(double amount) {
-        if (amount > 0) this.money += amount;
+        if (amount > 0) {
+            this.money += amount;
+            this.virMoney += amount;
+            com.bidcycle.dao.UserDAO.updateUserMoney(this.username, this.money, this.virMoney);
+        }
     }
 
     public synchronized double getMoney()             { return this.money; }
@@ -95,20 +100,32 @@ public class User {
     /** Khóa tiền khả dụng khi đặt giá (tiền thực chưa trừ). */
     public synchronized void lockVirMoney(double amount) {
         this.virMoney = Math.max(0, this.virMoney - amount);
+        // Lưu thay đổi vào DB để đồng bộ
+        com.bidcycle.dao.UserDAO.updateUserMoney(this.username, this.money, this.virMoney);
     }
 
     /** Hoàn lại tiền khả dụng khi bị vượt giá. */
     public synchronized void unlockVirMoney(double amount) {
         this.virMoney = Math.min(this.money, this.virMoney + amount);
+        // Lưu thay đổi vào DB để đồng bộ
+        com.bidcycle.dao.UserDAO.updateUserMoney(this.username, this.money, this.virMoney);
     }
 
     /** Thanh toán thực khi thắng đấu giá (trừ tiền thật + trả tiền cho người bán). */
     public synchronized void settlePayment(Product p) {
         double price = p.getPrice();
         this.money = Math.max(0, this.money - price);
+        // Sau khi thanh toán, số dư khả dụng phải khớp với số dư thực (vì tiền đã bị trừ xong)
+        this.virMoney = this.money;
+        
+        // Lưu thay đổi của người mua vào DB
+        com.bidcycle.dao.UserDAO.updateUserMoney(this.username, this.money, this.virMoney);
+
         User owner = p.getOwner();
         if (owner != null && owner.getUserId() != this.userId) {
             owner.receiveMoney(price);
+            // Quan trọng: Lưu thay đổi của người bán vào DB
+            com.bidcycle.dao.UserDAO.updateUserMoney(owner.getUsername(), owner.getMoney(), owner.getVirMoney());
         }
     }
 

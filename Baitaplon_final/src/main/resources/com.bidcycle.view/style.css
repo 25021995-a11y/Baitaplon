@@ -256,7 +256,7 @@
 
 .table-view .column-header, .table-view .filler {
     -fx-background-color: transparent;
-    -fx-size: 38px;
+    -fx-size: 30px;
     -fx-border-color: transparent;
 }
 
@@ -286,8 +286,8 @@
 
 .table-view .table-cell {
     -fx-text-fill: #e0caff;
-    -fx-font-size: 13px;
-    -fx-padding: 6 10 6 10;
+    -fx-font-size: 12px;
+    -fx-padding: 4 10 4 10;
 }
 
 .check-box {
@@ -346,4 +346,25 @@
     -fx-background-color: transparent;
     -fx-pref-width: 0;
     -fx-pref-height: 0;
+}
+
+.chart-series-line {
+    -fx-stroke: #00e676;
+    -fx-stroke-width: 2.5px;
+}
+.chart-line-symbol {
+    -fx-background-color: #00e676, white;
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 5px;
+    -fx-padding: 4px;
+}
+.chart-plot-background {
+    -fx-background-color: #0a0618;
+}
+.axis {
+    -fx-tick-label-fill: #4a3060;
+    -fx-font-size: 8px;
+}
+.axis-label {
+    -fx-text-fill: #6a4a8a;
 }

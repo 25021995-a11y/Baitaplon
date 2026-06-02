@@ -41,8 +41,13 @@ public class LoginController {
 
         try {
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            ViewNavigator.navigateTo(stage, ViewNavigator.BIDDER_HOME,
-                "BidCycle - Trang chủ - " + user.getUsername());
+            if (user instanceof com.bidcycle.model.Admin) {
+                ViewNavigator.navigateTo(stage, ViewNavigator.ADMIN_PANEL,
+                    "BidCycle - Quản trị hệ thống - " + user.getUsername());
+            } else {
+                ViewNavigator.navigateTo(stage, ViewNavigator.BIDDER_HOME,
+                    "BidCycle - Trang chủ - " + user.getUsername());
+            }
         } catch (IOException e) {
             showError("Lỗi hệ thống: Không thể tải màn hình chính!");
             e.printStackTrace();
