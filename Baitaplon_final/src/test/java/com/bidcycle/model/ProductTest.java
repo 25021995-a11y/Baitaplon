@@ -149,6 +149,7 @@ class ProductTest {
                 101,
                 "Phone",
                 100,
+                100,
                 LocalDateTime.now().minusHours(2),
                 LocalDateTime.now().minusMinutes(1),
                 seller
@@ -190,23 +191,4 @@ class ProductTest {
         assertEquals(AuctionClosedException.CODE_SESSION_ENDED, ex.getErrorCode());
     }
 
-    @Test
-    void testNotifyObserverWhenNewBidChangesPrice() {
-        final int[] notifyCount = {0};
-        final double[] notifiedAmount = {0};
-
-        product.addBidObserver(event -> {
-            notifyCount[0]++;
-            notifiedAmount[0] = event.getAmount();
-            assertEquals(product, event.getProduct());
-            assertEquals(bidder1, event.getBidder());
-            assertFalse(event.isAutoBid());
-        });
-
-        Product.BidResult result = product.processBid(bidder1, 150, false, 0);
-
-        assertTrue(result.isSuccess);
-        assertEquals(1, notifyCount[0]);
-        assertEquals(150, notifiedAmount[0]);
-    }
 }

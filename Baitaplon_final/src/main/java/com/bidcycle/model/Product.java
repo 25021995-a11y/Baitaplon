@@ -34,7 +34,6 @@ public class Product {
     private String imagePath;
     private String category;
     private int searchCount = 0;
-    private final List<BidObserver> bidObservers = new CopyOnWriteArrayList<>();
 
     // Auto-bid state
     private java.util.List<AutoBidConfig> autoBids = new java.util.ArrayList<>();
@@ -124,24 +123,6 @@ public class Product {
     public int    getSearchCount()            { return searchCount; }
     public void   incrementSearchCount()      { this.searchCount++; }
 
-    // ── Observer cho sự kiện bid mới ─────────────────────────
-
-    public void addBidObserver(BidObserver observer) {
-        if (observer != null && !bidObservers.contains(observer)) {
-            bidObservers.add(observer);
-        }
-    }
-
-    public void removeBidObserver(BidObserver observer) {
-        bidObservers.remove(observer);
-    }
-
-    private void notifyNewBid(User bidder, double amount, boolean autoBid) {
-        BidEvent event = new BidEvent(this, bidder, amount, autoBid);
-        for (BidObserver observer : bidObservers) {
-            observer.onNewBid(event);
-        }
-    }
 
     // ── Thời gian ─────────────────────────────────────────────
 

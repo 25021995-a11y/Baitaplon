@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ProductDetailController implements BidObserver {
+public class ProductDetailController {
 
     @FXML private Label     lblProductName;
     @FXML private Label     lblSeller;
@@ -64,11 +64,7 @@ public class ProductDetailController implements BidObserver {
         if (updateTimeline != null) {
             updateTimeline.stop();
         }
-        if (this.product != null) {
-            this.product.removeBidObserver(this);
-        }
         this.product = p;
-        this.product.addBidObserver(this);
         this.startPrice = p.getStartPrice();
         
         // Initialize Chart
@@ -267,6 +263,5 @@ public class ProductDetailController implements BidObserver {
 
     public void dispose() {
         if (updateTimeline != null) updateTimeline.stop();
-        if (product != null) product.removeBidObserver(this);
     }
 }
