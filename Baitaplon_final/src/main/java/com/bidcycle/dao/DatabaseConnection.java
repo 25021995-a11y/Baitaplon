@@ -16,7 +16,7 @@ public class DatabaseConnection {
 
     private static final String URL      = "jdbc:mysql://localhost:3306/biddingsystem";
     private static final String DB_USER  = "root";
-    private static final String PASSWORD = "abcd@1234";
+    private static final String PASSWORD = "200807";
 
     private DatabaseConnection() {}
 
