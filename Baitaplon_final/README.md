@@ -381,4 +381,4 @@ mvnw.cmd clean compile
 ## 10. Tài Liệu & Demo
 
 - **Báo cáo PDF:** https://drive.google.com/file/d/1N99H0uok5cKz3JZbAPINNiWey2SV4RER/view?usp=sharing
-- **Video demo:** [Link video demo](#) *(cập nhật link tại đây)*
+- **Video demo:** https://drive.google.com/file/d/1mYknSiiDTfshxkuTNuuBgOuher7yVMWr/view?usp=sharing
