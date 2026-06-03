@@ -1,369 +1,328 @@
-# BidCycle - Ứng Dụng Đấu Giá Trực Tuyến
+# BidCycle — Ứng Dụng Đấu Giá Trực Tuyến
 
-## 📋 Mô Tả Dự Án
+## Mô Tả Bài Toán & Phạm Vi Hệ Thống
 
-**BidCycle** là ứng dụng quản lý hệ thống đấu giá trực tuyến cho phép người dùng:
-- **Người bán (Seller)**: Đưa sản phẩm lên đấu giá, quản lý kho hàng, xem kết quả đấu giá
-- **Người mua (Bidder)**: Tham gia đấu giá, xem sản phẩm, thanh toán
-- **Quản trị viên (Admin)**: Quản lý người dùng, sản phẩm và giao dịch
+**BidCycle** là ứng dụng desktop quản lý đấu giá trực tuyến xây dựng bằng JavaFX, cho phép nhiều người dùng cùng tham gia đấu giá sản phẩm theo thời gian thực thông qua cơ sở dữ liệu MySQL dùng chung trên cloud.
 
-### Phạm Vi Hệ Thống
-- Quản lý tài khoản người dùng (Đăng ký, Đăng nhập, Quản lý hồ sơ)
-- Quản lý sản phẩm đấu giá (Tạo, sửa, xóa)
-- Hệ thống đấu giá real-time với xác định giá trị cuối cùng
-- Quản lý thanh toán và đơn hàng
-- Dashboard thống kê cho người bán và quản trị viên
+Hệ thống phục vụ ba nhóm người dùng:
+
+- **Người dùng thông thường (User)** — Seller có thể đăng sản phẩm lên đấu giá, Bidder có thể tham gia trả giá trên sản phẩm của người khác.
+- **Quản trị viên (Admin)** — quản lý toàn bộ tài khoản, sản phẩm, giao dịch và cấu hình hệ thống.
+
+Phạm vi bài toán bao gồm: 
+- Đăng ký/đăng nhập
+- Quản lý hồ sơ cá nhân
+- Tạo và quản lý sản phẩm đấu giá
+- Cơ chế đấu giá thủ công và tự động (Auto-Bid)
+- Thanh toán ảo
+- Thống kê doanh thu
+- Bảng quản trị toàn hệ thống.
 
 ---
 
-## 🛠️ Công Nghệ & Yêu Cầu
+## Công Nghệ & Môi Trường
 
-### Công Nghệ Sử Dụng
-| Thành Phần | Phiên Bản |
-|-----------|---------|
-| **Java** | 21 |
-| **JavaFX** | 21.0.6 |
-| **Maven** | 3.9+ |
-| **MySQL** | 8.0+ |
-| **ControlsFX** | 11.2.1 |
-| **MySQL Connector** | 8.3.0 |
-| **JUnit** | 5.12.1 |
+| Thành phần | Phiên bản |
+|---|---|
+| Java (JDK) | 21 |
+| JavaFX | 21.0.6 |
+| Maven | 3.9+ |
+| MySQL Connector/J | 8.3.0 |
+| ControlsFX | 11.2.1 |
+| JUnit Jupiter | 5.12.1 |
+| Database | MySQL 8.0 (cloud — Railway) |
+
+> **Lưu ý:** Ứng dụng kết nối tới database MySQL đã được triển khai sẵn trên Railway cloud. **Không cần cài đặt MySQL local.** Chỉ cần Java 21 và Maven là đủ để chạy.
 
 ### Yêu Cầu Cài Đặt
 
-**1. Yêu cầu hệ thống:**
-- Java JDK 21 hoặc cao hơn
-- Maven 3.9 hoặc cao hơn
-- MySQL Server 8.0 hoặc cao hơn
-- RAM: 4GB (tối thiểu)
-- Dung lượng ổ cứng: 500MB
-
-**2. Cài đặt Java JDK 21:**
-
-| Hệ điều hành | Hướng dẫn |
-|-------------|---------|
-| **Windows** | Tải từ [oracle.com](https://www.oracle.com/java/technologies/downloads/) → Cài đặt → Thiết lập JAVA_HOME |
-| **macOS** | `brew install openjdk@21` |
-| **Linux (Ubuntu/Debian)** | `sudo apt-get install openjdk-21-jdk` |
-| **Linux (Fedora/RHEL)** | `sudo dnf install java-21-openjdk-devel` |
-
-**3. Cài đặt Maven:**
+**1. Cài Java JDK 21:**
 
 ```bash
-# Windows (sử dụng Chocolatey)
-choco install maven
+# macOS (Homebrew)
+brew install openjdk@21
 
+# Ubuntu / Debian
+sudo apt-get install openjdk-21-jdk
+
+# Fedora / RHEL
+sudo dnf install java-21-openjdk-devel
+
+# Windows
+# Tải từ https://www.oracle.com/java/technologies/downloads/
+# Sau đó thiết lập biến môi trường JAVA_HOME
+```
+
+**2. Cài Maven 3.9+:**
+
+```bash
 # macOS
 brew install maven
 
-# Linux Ubuntu/Debian
+# Ubuntu / Debian
 sudo apt-get install maven
 
-# Linux Fedora
+# Fedora
 sudo dnf install maven
+
+# Windows (Chocolatey)
+choco install maven
 ```
 
-**4. Cài đặt MySQL:**
+Hoặc dùng **Maven Wrapper** đi kèm trong project — không cần cài Maven riêng (xem Bước 4).
 
-| Hệ điều hành | Hướng dẫn |
-|-------------|---------|
-| **Windows** | Tải từ [mysql.com](https://dev.mysql.com/downloads/mysql/) → Cài đặt → Khởi động MySQL Service |
-| **macOS** | `brew install mysql` → `brew services start mysql` |
-| **Linux** | `sudo apt-get install mysql-server` (Ubuntu) |
-
-**5. Kiểm tra cài đặt:**
+**3. Kiểm tra môi trường:**
 
 ```bash
-# Kiểm tra Java
-java -version
-
-# Kiểm tra Maven
-mvn -version
-
-# Kiểm tra MySQL
-mysql --version
+java -version   # Phải là 21+
+mvn -version    # Phải là 3.9+ 
 ```
 
 ---
 
-## 📁 Cấu Trúc Dự Án
+## Cấu Trúc Thư Mục
 
 ```
 BidCycle/
 ├── src/
-│   └── main/
-│       ├── java/
-│       │   ├── com/bidcycle/
-│       │   │   ├── app/                    # Điểm khởi động ứng dụng
-│       │   │   │   ├── Launcher.java       # Entry point (tránh lỗi module-path)
-│       │   │   │   └── MainApp.java        # Ứng dụng JavaFX chính
-│       │   │   ├── controller/             # MVC Controllers
-│       │   │   │   ├── LoginController.java
-│       │   │   │   ├── RegisterController.java
-│       │   │   │   ├── BidderHomeController.java
-│       │   │   │   ├── SellerController.java
-│       │   │   │   ├── ProductDetailController.java
-│       │   │   │   ├── InventoryController.java
-│       │   │   │   ├── PaymentController.java
-│       │   │   │   ├── DashboardController.java
-│       │   │   │   └── AccountController.java
-│       │   │   ├── model/                  # Model classes
-│       │   │   │   ├── User.java           # Người dùng
-│       │   │   │   ├── Product.java        # Sản phẩm
-│       │   │   │   ├── BidRecord.java      # Ghi chép đấu giá
-│       │   │   │   ├── UserSession.java    # Phiên đăng nhập
-│       │   │   │   └── Admin.java
-│       │   │   ├── dao/                    # Data Access Objects
-│       │   │   │   ├── DatabaseConnection.java
-│       │   │   │   ├── UserDAO.java        # Quản lý người dùng
-│       │   │   │   └── ProductDAO.java     # Quản lý sản phẩm
-│       │   │   └── util/
-│       │   │       └── ViewNavigator.java  # Điều hướng View
-│       │   └── module-info.java
-│       └── resources/
-│           ├── com/bidcycle/view/          # FXML files (giao diện)
-│           │   ├── login.fxml
-│           │   ├── register.fxml
-│           │   ├── bidder-home.fxml
-│           │   ├── seller-home.fxml
-│           │   ├── product-detail.fxml
-│           │   ├── inventory.fxml
-│           │   ├── payment.fxml
-│           │   ├── dashboard.fxml
-│           │   ├── account.fxml
-│           │   ├── style.css                # CSS styling
-│           │   └── db_migration_v2.sql      # Database schema
-│           └── images/
-│               └── iconn.png
-├── pom.xml                                  # Maven configuration
-├── mvnw / mvnw.cmd                          # Maven wrapper
+│   ├── main/
+│   │   ├── java/com/bidcycle/
+│   │   │   ├── app/                   # Entry point ứng dụng JavaFX
+│   │   │   │   ├── Launcher.java      # Class khởi chạy (tránh lỗi module-path)
+│   │   │   │   └── MainApp.java       # Ứng dụng JavaFX chính
+│   │   │   ├── controller/            # MVC Controllers (xử lý logic giao diện)
+│   │   │   │   ├── LoginController.java
+│   │   │   │   ├── RegisterController.java
+│   │   │   │   ├── BidderHomeController.java
+│   │   │   │   ├── SellerController.java
+│   │   │   │   ├── ProductDetailController.java
+│   │   │   │   ├── InventoryController.java
+│   │   │   │   ├── PaymentController.java
+│   │   │   │   ├── DashboardController.java
+│   │   │   │   ├── AccountController.java
+│   │   │   │   └── AdminController.java
+│   │   │   ├── model/                 # Domain models
+│   │   │   │   ├── User.java
+│   │   │   │   ├── Admin.java
+│   │   │   │   ├── Product.java
+│   │   │   │   ├── BidRecord.java
+│   │   │   │   ├── ProductStorage.java
+│   │   │   │   └── UserSession.java
+│   │   │   ├── dao/                   # Data Access Objects (truy cập DB)
+│   │   │   │   ├── DatabaseConnection.java
+│   │   │   │   ├── UserDAO.java
+│   │   │   │   ├── ProductDAO.java
+│   │   │   │   └── AdminDAO.java
+│   │   │   ├── exception/             # Custom exceptions
+│   │   │   │   ├── BidCycleException.java
+│   │   │   │   ├── AuctionClosedException.java
+│   │   │   │   ├── AuthenticationException.java
+│   │   │   │   └── InvalidBidException.java
+│   │   │   └── util/
+│   │   │       └── ViewNavigator.java # Điều hướng giữa các màn hình
+│   │   └── resources/
+│   │       ├── com.bidcycle.view/     # FXML layouts & CSS
+│   │       │   ├── login.fxml
+│   │       │   ├── register.fxml
+│   │       │   ├── bidder-home.fxml
+│   │       │   ├── seller-home.fxml
+│   │       │   ├── product-detail.fxml
+│   │       │   ├── inventory.fxml
+│   │       │   ├── payment.fxml
+│   │       │   ├── dashboard.fxml
+│   │       │   ├── account.fxml
+│   │       │   ├── admin-panel.fxml
+│   │       │   ├── style.css
+│   │       │   ├── db_migration_v2.sql
+│   │       │   ├── db_migration_v3_autobid.sql
+│   │       │   └── db_migration_v4_multi_autobid.sql
+│   │       └── images/
+│   │           └── iconn.png
+│   └── test/
+│       └── java/com/bidcycle/model/
+│           └── ProductTest.java
+├── pom.xml                            # Maven build & dependencies
+├── mvnw                               # Maven Wrapper (Linux/macOS)
+├── mvnw.cmd                           # Maven Wrapper (Windows)
 └── README.md
 ```
 
 ### Các Module Chính
-1. **Model**: Định nghĩa cấu trúc dữ liệu (User, Product, BidRecord)
-2. **DAO**: Xử lý truy cập database (DatabaseConnection, UserDAO, ProductDAO)
-3. **Controller**: Logic xử lý giao diện (MVC pattern)
-4. **Util**: Các tiện ích (ViewNavigator, UserSession)
-5. **Resources**: FXML layouts và CSS styling
+
+- **`app`** — Khởi tạo Stage JavaFX, load màn hình đầu tiên.
+- **`controller`** — Xử lý toàn bộ logic tương tác người dùng theo pattern MVC.
+- **`model`** — Định nghĩa cấu trúc dữ liệu: User, Product, BidRecord, v.v.
+- **`dao`** — Tầng truy cập cơ sở dữ liệu qua JDBC (Singleton pattern cho DatabaseConnection).
+- **`exception`** — Xử lý ngoại lệ nghiệp vụ (đấu giá đã đóng, bid không hợp lệ…).
+- **`util`** — ViewNavigator quản lý điều hướng màn hình.
 
 ---
 
-## 🚀 Hướng Dẫn Chạy Ứng Dụng
+## Hướng Dẫn Chạy Chương Trình
 
-### Bước 1: Clone/Tải Dự Án
+Ứng dụng BidCycle là **ứng dụng desktop một tiến trình** — không có server/client tách biệt. Chỉ cần clone project và chạy là dùng được ngay, vì database đã có sẵn trên cloud.
+
+### Bước 1: Lấy Source Code
 
 ```bash
-# Nếu có Git
+# Clone qua Git
 git clone <repository-url>
-cd Baitaplon_final
+cd BidCycle
 
-# Hoặc tải file ZIP và giải nén
+# Hoặc giải nén file ZIP tải về
+unzip BidCycle.zip
+cd BidCycle
 ```
 
-### Bước 2: Cấu Hình Database
-
-**2.1. Khởi động MySQL Server:**
+### Bước 2: Build Project
 
 ```bash
-# Windows (Command Prompt - Admin)
-net start MySQL80
+# Linux / macOS — dùng Maven Wrapper 
+./mvnw clean package -DskipTests
 
-# macOS
-brew services start mysql
+# Windows — dùng Maven Wrapper
+mvnw.cmd clean package -DskipTests
 
-# Linux (Ubuntu/Debian)
-sudo systemctl start mysql
-
-# Linux (Fedora/RHEL)
-sudo systemctl start mysqld
+# Dùng Maven đã cài sẵn 
+mvn clean package -DskipTests
 ```
 
-**2.2. Tạo database và chạy migration:**
+### Bước 3: Chạy Ứng Dụng
+
+**Cách 1 — Maven JavaFX plugin :**
 
 ```bash
-# Kết nối MySQL
-mysql -u root -p
+# Linux / macOS
+./mvnw javafx:run
 
-# Nhập password của MySQL (mặc định có thể không có password)
-```
-
-Trong MySQL CLI:
-```sql
-CREATE DATABASE bidcycle;
-USE bidcycle;
-SOURCE src/main/resources/com/bidcycle/view/db_migration_v2.sql;
-```
-
-**2.3. Cấu hình kết nối database:**
-
-Mở file `DatabaseConnection.java` (trong `dao/`) và kiểm tra thông tin kết nối:
-```java
-// Ví dụ cấu hình
-String url = "jdbc:mysql://localhost:3306/bidcycle";
-String user = "root";
-String password = "your_password";  // Thay đổi nếu cần
-```
-
-### Bước 3: Build Dự Án
-
-```bash
-# Sử dụng Maven wrapper (khuyên dùng)
-# Windows
-mvnw.cmd clean package
-
-# macOS / Linux
-./mvnw clean package
-
-# HOẶC sử dụng Maven cài sẵn
-mvn clean package
-```
-
-### Bước 4: Chạy Ứng Dụng
-
-#### Option 1: Sử dụng Maven (Khuyên dùng trên mọi hệ điều hành)
-
-```bash
 # Windows
 mvnw.cmd javafx:run
 
-# macOS / Linux
-./mvnw javafx:run
-
-# HOẶC sử dụng Maven cài sẵn
+# Hoặc dùng Maven đã cài sẵn
 mvn javafx:run
 ```
 
-#### Option 2: Chạy từ JAR (sau khi build)
+**Cách 2 — Chạy trực tiếp từ IDE:**
+
+1. Mở project trong IntelliJ IDEA hoặc Eclipse.
+2. Chuột phải vào `src/main/java/com/bidcycle/app/Launcher.java` → **Run 'Launcher.main()'**.
+
+> ⚠️ **Không chạy `MainApp.java` trực tiếp** — phải chạy qua `Launcher.java` để tránh lỗi JavaFX module-path khi chạy từ IDE.
+
+**Cách 3 — Chạy từ file JAR :**
+
+JavaFX yêu cầu cung cấp đường dẫn module. Cách đơn giản nhất vẫn là dùng `mvn javafx:run` ở trên. Nếu muốn chạy JAR trực tiếp, cần cài JavaFX SDK riêng và thêm `--module-path`:
 
 ```bash
-# Windows
-java -jar target/BidCycle-2.0-SNAPSHOT.jar
+# Linux / macOS (thay /path/to/javafx-sdk bằng đường dẫn thực tế)
+java --module-path /path/to/javafx-sdk/lib --add-modules javafx.controls,javafx.fxml \
+     -jar target/BidCycle-2.0-SNAPSHOT.jar
 
-# macOS / Linux
-java -jar target/BidCycle-2.0-SNAPSHOT.jar
+# Windows (thay đường dẫn tương ứng)
+java --module-path C:\javafx-sdk\lib --add-modules javafx.controls,javafx.fxml ^
+     -jar target\BidCycle-2.0-SNAPSHOT.jar
 ```
 
-#### Option 3: Chạy từ IDE (IntelliJ IDEA)
-1. Mở project trong IntelliJ IDEA
-2. Chuột phải vào `Launcher.java` → Run 'Launcher.main()'
-3. Hoặc sử dụng IDE Maven tool: Maven → Plugins → javafx → javafx:run
+### Bước 4: Đăng Nhập
+
+Sau khi ứng dụng khởi động, màn hình đăng nhập hiện ra:
+
+| Tài khoản | Tên đăng nhập | Mật khẩu | Quyền |
+|---|---|---|---|
+| Admin mặc định | `admin` | `admin123` | Quản trị viên |
+| Tài khoản thường | Đăng ký mới | Tự đặt | User |
 
 ---
 
-## 📝 Danh Sách Chức Năng Đã Hoàn Thành
+## Danh Sách Chức Năng Đã Hoàn Thành
 
-### ✅ Quản Lý Tài Khoản
-- [x] Đăng ký tài khoản người dùng (Seller/Bidder)
-- [x] Đăng nhập hệ thống
-- [x] Xem/Sửa hồ sơ cá nhân
-- [x] Quản lý mật khẩu
-- [x] Quản lý quyền người dùng
+### Quản Lý Tài Khoản
+- [x] Đăng ký tài khoản (với email, giới tính, ngày tạo)
+- [x] Đăng nhập và phân quyền (Admin / User)
+- [x] Xem và chỉnh sửa hồ sơ cá nhân
+- [x] Đổi mật khẩu
+- [x] Quản lý số dư ví ảo (`vir_money`)
 
-### ✅ Chức Năng Seller (Người Bán)
-- [x] Tạo sản phẩm đấu giá
-- [x] Chỉnh sửa thông tin sản phẩm
-- [x] Xóa sản phẩm
+### Chức Năng Người Dùng — Vai Trò Người Bán
+- [x] Đăng sản phẩm lên đấu giá (tên, giá khởi điểm, thời gian, mô tả, ảnh, danh mục)
+- [x] Chỉnh sửa và xóa sản phẩm chưa có lượt bid
 - [x] Quản lý kho hàng (Inventory)
-- [x] Xem lịch sử đấu giá
-- [x] Xem kết quả đấu giá
-- [x] Dashboard thống kê doanh số
+- [x] Xem lịch sử và kết quả đấu giá của sản phẩm đã đăng
+- [x] Dashboard thống kê doanh số cá nhân
 
-### ✅ Chức Năng Bidder (Người Mua)
-- [x] Duyệt danh sách sản phẩm
-- [x] Xem chi tiết sản phẩm
-- [x] Tham gia đấu giá
-- [x] Xem lịch sử các lần đấu giá của mình
-- [x] Thanh toán sản phẩm đã thắng
-- [x] Quản lý giỏ hàng/Đơn hàng
+### Chức Năng Người Dùng — Vai Trò Người Mua
+- [x] Duyệt danh sách sản phẩm đang đấu giá
+- [x] Tìm kiếm theo tên và lọc theo danh mục
+- [x] Sắp xếp theo giá, thời gian còn lại
+- [x] Xem chi tiết sản phẩm, biểu đồ lịch sử giá
+- [x] Đặt giá thủ công (Manual Bid)
+- [x] Đặt giá tự động (Auto-Bid) — hệ thống tự động trả giá theo bước đến mức tối đa
+- [x] Hỗ trợ nhiều người cùng đặt Auto-Bid trên một sản phẩm
+- [x] Xem lịch sử các lần đấu giá của bản thân
+- [x] Thanh toán sản phẩm đã thắng từ ví ảo
 
-### ✅ Hệ Thống Đấu Giá
-- [x] Real-time bidding
-- [x] Xác định người thắng đấu giá
-- [x] Tính toán giá cao nhất
-- [x] Lịch sử bids chi tiết
-- [x] Thông báo khi bị trả giá
+### Hệ Thống Đấu Giá
+- [x] Đồng hồ đếm ngược thời gian thực
+- [x] Cập nhật giá và người dẫn đầu theo thời gian thực (polling)
+- [x] Xác định và thông báo người thắng khi hết giờ
+- [x] Kiểm tra và xử lý ngoại lệ (bid thấp hơn giá hiện tại, đấu giá đã đóng, số dư không đủ)
 
-### ✅ Quản Lý Thanh Toán
-- [x] Xử lý thanh toán sản phẩm
-- [x] Lịch thanh toán
-- [x] Xác nhận thanh toán
+### Admin Dashboard
+- [x] Thống kê tổng quan: tổng user, user đang hoạt động/bị khóa, tổng sản phẩm, đấu giá đang chạy/đã kết thúc, doanh thu
+- [x] Quản lý người dùng: duyệt, khóa tài khoản, cấp quyền Admin
+- [x] Quản lý sản phẩm: xem, xóa sản phẩm
+- [x] Tab xử lý tranh chấp (Disputes)
+- [x] Cấu hình tham số hệ thống (Config)
 
-### ✅ Admin Dashboard
-- [x] Thống kê toàn hệ thống
-- [x] Quản lý người dùng
-- [x] Quản lý sản phẩm
-- [x] Báo cáo giao dịch
-
-### ✅ Giao Diện & UX
-- [x] Giao diện Modern với CSS styling
-- [x] Navigation mượt mà giữa các màn hình
-- [x] Form validation
-- [x] Xử lý lỗi thân thiện với người dùng
-- [x] Icon và hình ảnh (BidCycle logo)
+### Giao Diện & Trải Nghiệm
+- [x] Giao diện hiện đại với CSS tùy chỉnh (dark theme)
+- [x] Điều hướng mượt mà giữa các màn hình qua ViewNavigator
+- [x] Validation form phía client
+- [x] Biểu đồ đường lịch sử giá đấu giá (LineChart)
+- [x] Hiển thị ảnh sản phẩm
 
 ---
 
-## 📊 Danh Sách Database Schema
+## Database Schema
 
-**Các bảng chính:**
-- `users` - Thông tin người dùng
-- `products` - Thông tin sản phẩm đấu giá
-- `bid_records` - Ghi chép các lần đấu giá
-- `payments` - Thông tin thanh toán
-- `inventory` - Kho hàng
+Database nằm trên cloud (Railway). Các bảng chính:
 
-Chi tiết schema xem tại: `src/main/resources/com/bidcycle/view/db_migration_v2.sql`
+| Bảng | Mô tả |
+|---|---|
+| `users` | Tài khoản người dùng (username, password, email, role, money, vir_money) |
+| `products` | Sản phẩm đấu giá (tên, giá, thời gian, người bán, trạng thái) |
+| `bid_records` | Lịch sử từng lượt đấu giá |
+| `auto_bids` | Cấu hình Auto-Bid của từng user trên từng sản phẩm |
+| `system_config` | Cấu hình tham số hệ thống của Admin |
+
+Script migration tham khảo tại:
+- `src/main/resources/com.bidcycle.view/db_migration_v2.sql`
+- `src/main/resources/com.bidcycle.view/db_migration_v3_autobid.sql`
+- `src/main/resources/com.bidcycle.view/db_migration_v4_multi_autobid.sql`
 
 ---
 
-## 🐛 Xử Lý Sự Cố Thường Gặp
+## Xử Lý Sự Cố Thường Gặp
 
-### Lỗi: "Module not found"
-**Giải pháp**: Đảm bảo `module-info.java` được compile đúng
+**Lỗi `UnsupportedClassVersionError`:**
+Java đang chạy thấp hơn 21. Kiểm tra lại: `java -version`.
+
+**Lỗi `Cannot connect to database` / `Communications link failure`:**
+Kiểm tra kết nối Internet — ứng dụng cần kết nối tới database cloud trên Railway.
+
+**Lỗi `Module not found` hoặc JavaFX không tìm thấy:**
+Dùng đúng lệnh `./mvnw javafx:run` (hoặc `mvnw.cmd javafx:run` trên Windows). Maven sẽ tự tải JavaFX qua dependency.
+
+**Ứng dụng không build được:**
 ```bash
-mvn clean compile
-```
-
-### Lỗi: "Cannot connect to database"
-**Giải pháp**: 
-- Kiểm tra MySQL server đang chạy
-- Kiểm tra thông tin kết nối trong `DatabaseConnection.java`
-- Đảm bảo database `bidcycle` được tạo
-
-### Lỗi: "JavaFX not found"
-**Giải pháp**: Maven sẽ tự download, chạy:
-```bash
-mvnw.cmd clean dependency:resolve
-```
-
-### Ứng dụng không khởi động
-**Giải pháp**: Kiểm tra Java version
-```bash
-java -version  # Phải là 21+
+# Làm sạch cache và build lại
+./mvnw clean compile   # Linux/macOS
+mvnw.cmd clean compile # Windows
 ```
 
 ---
 
-## 📚 Công Nghệ Chi Tiết
+## Tài Liệu & Demo
 
-- **JavaFX 21**: Giao diện desktop hiện đại
-- **FXML**: Markup language cho JavaFX UI
-- **MVC Pattern**: Architecture rõ ràng (Model-View-Controller)
-- **Module System (Java 9+)**: Quản lý package an toàn
-- **MySQL JDBC**: Kết nối database
-- **Maven**: Build tool và dependency management
-
----
-
-## 📄 Tài Liệu & Demo
-
-### Link Báo Cáo PDF
-- [Link Báo Cáo](https://example.com/report.pdf) *(Thay bằng link thực tế)*
-
-### Video Demo
-- [Demo Video Application](https://example.com/demo.mp4) *(Thay bằng link thực tế)*
-- [Setup & Installation Guide](https://example.com/installation.mp4) *(Thay bằng link thực tế)*
-
----
-
+- **Báo cáo PDF:** [Link báo cáo](https://example.com/report.pdf) 
+- **Video demo:** [Link video demo](https://example.com/demo.mp4) 
