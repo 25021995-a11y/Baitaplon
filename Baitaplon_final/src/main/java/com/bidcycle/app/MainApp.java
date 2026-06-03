@@ -1,5 +1,6 @@
 package com.bidcycle.app;
 
+import com.bidcycle.util.DatabaseWatcher;
 import com.bidcycle.util.ViewNavigator;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -34,5 +35,8 @@ public class MainApp extends Application {
         } catch (Exception ignored) {}
 
         stage.show();
+
+        // Khởi động Watcher để cập nhật realtime giữa các tiến trình khác nhau
+        DatabaseWatcher.getInstance().start();
     }
 }

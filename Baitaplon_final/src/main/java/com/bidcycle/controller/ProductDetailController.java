@@ -3,6 +3,8 @@ package com.bidcycle.controller;
 import com.bidcycle.dao.ProductDAO;
 import com.bidcycle.model.Product;
 import com.bidcycle.model.User;
+import com.bidcycle.util.AuctionEventManager;
+import com.bidcycle.util.AuctionObserver;
 import javafx.application.Platform;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -29,7 +31,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ProductDetailController {
+public class ProductDetailController implements AuctionObserver {
 
     @FXML private Label     lblProductName;
     @FXML private Label     lblSeller;
@@ -64,8 +66,17 @@ public class ProductDetailController {
         if (updateTimeline != null) {
             updateTimeline.stop();
         }
+        
+        // Hủy đăng ký sản phẩm cũ nếu có
+        if (this.product != null) {
+            AuctionEventManager.getInstance().unsubscribe(this.product.getProductId(), this);
+        }
+
         this.product = p;
         this.startPrice = p.getStartPrice();
+        
+        // Đăng ký nhận thông báo cho sản phẩm mới
+        AuctionEventManager.getInstance().subscribe(p.getProductId(), this);
         
         // Initialize Chart
         priceSeries.setName("Giá đấu");
@@ -220,30 +231,48 @@ public class ProductDetailController {
         }
     }
 
-    private void startLiveUpdate() {
-        updateTimeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
-            if (product != null) {
+    @Override
+    public void onBidUpdate(Product updatedProduct) {
+        // Cập nhật dữ liệu sản phẩm hiện tại
+        if (this.product != null && this.product.getProductId() == updatedProduct.getProductId()) {
+            
+            // Chạy trên JavaFX Application Thread
+            Platform.runLater(() -> {
+                // Cập nhật các thông tin từ sản phẩm mới vào instance hiện tại
+                this.product.setCurPrice(updatedProduct.getPrice());
+                this.product.setHighestBidder(updatedProduct.getHighestBidder());
+                this.product.setFinished(updatedProduct.isFinished());
+
                 double currentPrice = product.getPrice();
                 lblCurrentPrice.setText(String.format("$%.2f", currentPrice));
-                lblTimeLeft.setText(product.getTimeDisplay());
                 User hb = product.getHighestBidder();
                 lblTopBidder.setText(hb != null ? "🏆 " + hb.getUsername() : "Chưa có ai đặt giá");
                 drawPriceIndicator();
 
-                // Cập nhật biểu đồ: 
-                // Khi có sự thay đổi giá hoặc để kéo dài đường nằm ngang theo thời gian
                 if (currentPrice != lastTrackedPrice) {
                     addBidPoint(currentPrice);
                     lastTrackedPrice = currentPrice;
                     updateBidStats();
-                } else if (!priceSeries.getData().isEmpty()) {
-                    // Nếu giá không đổi, ta định kỳ thêm điểm để đường nằm ngang kéo dài ra
-                    // Hoặc có thể chỉ cập nhật nhãn thời gian của điểm cuối nếu nó cùng giá
+                }
+            });
+        }
+    }
+
+    private void startLiveUpdate() {
+        updateTimeline = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            if (product != null) {
+                // Chỉ poll thời gian còn lại, không poll giá nữa vì đã có Observer
+                lblTimeLeft.setText(product.getTimeDisplay());
+                
+                // Kiểm tra kết thúc phiên (nếu cần)
+                product.checkAndProcessEnd();
+
+                // Cập nhật biểu đồ để kéo dài đường nằm ngang theo thời gian
+                if (!priceSeries.getData().isEmpty()) {
                     int lastIdx = priceSeries.getData().size() - 1;
                     XYChart.Data<String, Number> lastData = priceSeries.getData().get(lastIdx);
                     
                     String now = timeFormat.format(new Date());
-                    // Nếu đã qua giây mới, cập nhật điểm cuối để kéo dài trục X
                     if (!lastData.getXValue().startsWith(now)) {
                         lastData.setXValue(getUniqueTimeStr(now));
                     }
@@ -263,5 +292,8 @@ public class ProductDetailController {
 
     public void dispose() {
         if (updateTimeline != null) updateTimeline.stop();
+        if (this.product != null) {
+            AuctionEventManager.getInstance().unsubscribe(this.product.getProductId(), this);
+        }
     }
 }
