@@ -38,6 +38,49 @@ public class ProductDAO {
         }
     }
 
+    public static Product getProductById(int productId) {
+        String sql = "SELECT * FROM products WHERE id = ?";
+        try (Connection conn = DatabaseConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, productId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    int id = rs.getInt("id");
+                    String name = rs.getString("name");
+                    double startPrice = rs.getDouble("start_price");
+                    double curPrice = rs.getDouble("cur_price");
+                    boolean isFinished = rs.getBoolean("is_finished");
+                    LocalDateTime startTime = rs.getTimestamp("start_time").toLocalDateTime();
+                    LocalDateTime endTime = rs.getTimestamp("end_time").toLocalDateTime();
+                    String category = rs.getString("category");
+                    String description = rs.getString("description");
+                    String imagePath = rs.getString("image_path");
+
+                    int sellerId = rs.getInt("seller_id");
+                    User owner = UserDAO.getUserById(sellerId);
+
+                    Product p = new Product(id, name, startPrice, curPrice, startTime, endTime, owner);
+                    p.setCategory(category);
+                    p.setDescription(description);
+                    p.setImagePath(imagePath);
+
+                    int highestBidderId = rs.getInt("highest_bidder_id");
+                    if (!rs.wasNull()) {
+                        User highestBidder = UserDAO.getUserById(highestBidderId);
+                        p.setHighestBidder(highestBidder);
+                        p.setLockedAmountPrev(curPrice);
+                    }
+                    p.setFinished(isFinished);
+                    p.setAutoBids(getAutoBidsForProduct(id));
+                    return p;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     // 2. HÀM LẤY TẤT CẢ SẢN PHẨM TỪ DATABASE
     public static List<Product> getAllProducts() {
         List<Product> productList = new ArrayList<>();

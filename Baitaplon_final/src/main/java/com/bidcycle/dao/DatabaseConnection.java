@@ -13,11 +13,14 @@ import java.sql.SQLException;
  *  - Không có main() test trong lớp này (vi phạm Single Responsibility).
  */
 public class DatabaseConnection {
-
+/*
     private static final String URL      = "jdbc:mysql://zephyr.proxy.rlwy.net:56046/railway?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     private static final String DB_USER  = "root";
     private static final String PASSWORD = "rBPtxSGQiirmJeAOBiYgzLqAIQPmcgAm";
-
+*/
+    private static final String URL      = "jdbc:mysql://localhost:3306/biddingsystem";
+    private static final String DB_USER  = "root";
+    private static final String PASSWORD = "200807";
     // 1. Biến static duy nhất giữ instance của class
     private static DatabaseConnection instance;
 

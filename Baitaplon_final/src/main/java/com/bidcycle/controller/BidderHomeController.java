@@ -4,7 +4,10 @@ import com.bidcycle.dao.ProductDAO;
 import com.bidcycle.exception.AuthenticationException;
 import com.bidcycle.exception.BidCycleException;
 import com.bidcycle.model.*;
+import com.bidcycle.util.AuctionEventManager;
+import com.bidcycle.util.AuctionObserver;
 import com.bidcycle.util.ViewNavigator;
+import javafx.application.Platform;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -32,7 +35,7 @@ import java.util.Comparator;
  * CONTROLLER: Trang chủ — dùng chung cho mọi người dùng.
  * Mỗi user vừa có thể đấu giá, vừa có thể bán hàng.
  */
-public class BidderHomeController {
+public class BidderHomeController implements AuctionObserver {
 
     @FXML private CheckBox           chkAutoBid;
     @FXML private TableView<Product> auctionTable;
@@ -68,6 +71,13 @@ public class BidderHomeController {
         setupFilters();
         loadProducts();
         startClock();
+        
+        // Đăng ký nhận thông báo bid (toàn bộ sản phẩm)
+        // Khi một sản phẩm mới được đăng từ tiến trình khác, Watcher sẽ notify, 
+        // và onBidUpdate sẽ xử lý đăng ký sản phẩm đó sau.
+        for (Product p : allProducts) {
+            AuctionEventManager.getInstance().subscribe(p.getProductId(), this);
+        }
     }
 
     private void setupTable() {
@@ -214,6 +224,9 @@ public class BidderHomeController {
             if (result.isSuccess) {
                 ProductDAO.updateHighestBid(selected);
                 ProductDAO.recordBidHistory(selected.getProductId(), selected.getPrice());
+                
+                // Thông báo cho các Observer khác (Realtime Update)
+                AuctionEventManager.getInstance().notifyBid(selected);
             }
             
             // Cập nhật ví ngay lập tức cho UI
@@ -232,6 +245,36 @@ public class BidderHomeController {
     }
 
     // ── Dashboard ─────────────────────────────────────────────
+
+    @Override
+    public void onBidUpdate(Product updatedProduct) {
+        // Cập nhật giá sản phẩm trong danh sách hiển thị
+        Platform.runLater(() -> {
+            boolean found = false;
+            for (int i = 0; i < allProducts.size(); i++) {
+                Product p = allProducts.get(i);
+                if (p.getProductId() == updatedProduct.getProductId()) {
+                    p.setCurPrice(updatedProduct.getPrice());
+                    p.setHighestBidder(updatedProduct.getHighestBidder());
+                    p.setFinished(updatedProduct.isFinished());
+                    
+                    // Kích hoạt TableView làm mới dòng này
+                    allProducts.set(i, p); 
+                    found = true;
+                    break;
+                }
+            }
+            
+            // Nếu không tìm thấy trong danh sách (sản phẩm mới đăng từ máy khác)
+            if (!found && !updatedProduct.isFinished()) {
+                allProducts.add(updatedProduct);
+                // Đăng ký nhận thông báo cho sản phẩm mới này
+                AuctionEventManager.getInstance().subscribe(updatedProduct.getProductId(), this);
+                // Áp dụng lại filter/sort để sản phẩm mới nằm đúng vị trí
+                applyFilters();
+            }
+        });
+    }
 
     @FXML
     protected void onNavDashboard(ActionEvent event) {
